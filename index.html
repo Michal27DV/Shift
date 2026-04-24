@@ -1,0 +1,1501 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#0a0618">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Shift">
+    <title>Shift</title>
+    <style>
+/* ============================================
+   DESIGN SYSTEM — Deep dark + liquid glass
+   ============================================ */
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+:root {
+    --accent: #60a5fa;
+    --accent-2: #818cf8;
+    --accent-glow: rgba(96, 165, 250, 0.45);
+
+    --glass-bg: rgba(0, 0, 0, 0.62);
+    --glass-bg-strong: rgba(0, 0, 0, 0.78);
+    --glass-border: rgba(255, 255, 255, 0.14);
+    --glass-highlight: rgba(255, 255, 255, 0.05);
+
+    --text: #f5f3ff;
+    --text-secondary: rgba(245, 243, 255, 0.7);
+    --text-tertiary: rgba(245, 243, 255, 0.42);
+
+    --danger: #f87171;
+    --warning: #fbbf24;
+    --success: #4ade80;
+
+    --radius-sm: 14px;
+    --radius-md: 20px;
+    --radius-lg: 28px;
+    --radius-xl: 36px;
+
+    --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.5);
+    --shadow-float: 0 16px 48px rgba(0, 0, 0, 0.7);
+}
+
+/* Light-ish mode is still dark but less deep */
+[data-theme="light"] {
+    --glass-bg: rgba(255, 255, 255, 0.08);
+    --glass-bg-strong: rgba(255, 255, 255, 0.14);
+    --glass-border: rgba(255, 255, 255, 0.2);
+    --glass-highlight: rgba(255, 255, 255, 0.25);
+}
+
+html, body {
+    height: 100%;
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+    color: var(--text);
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    overscroll-behavior: none;
+}
+
+/* Deep dark — near-black with purple/blue glow */
+body {
+    background:
+        radial-gradient(ellipse at 0% 10%, rgba(20, 60, 160, 0.55), transparent 55%),
+        radial-gradient(ellipse at 100% 20%, rgba(70, 25, 130, 0.45), transparent 55%),
+        radial-gradient(ellipse at 0% 90%, rgba(15, 45, 130, 0.4), transparent 55%),
+        radial-gradient(ellipse at 100% 100%, rgba(55, 20, 110, 0.45), transparent 55%),
+        linear-gradient(180deg, #02030a 0%, #03040f 40%, #050313 75%, #02020a 100%);
+    background-attachment: fixed;
+    position: relative;
+}
+
+[data-theme="light"] body,
+body[data-theme="light"] {
+    background:
+        radial-gradient(ellipse at 15% 0%, rgba(90, 60, 160, 0.55), transparent 55%),
+        radial-gradient(ellipse at 85% 30%, rgba(110, 60, 180, 0.4), transparent 55%),
+        radial-gradient(ellipse at 50% 100%, rgba(50, 30, 110, 0.7), transparent 55%),
+        linear-gradient(180deg, #15093a 0%, #1e0d4a 35%, #251055 70%, #180838 100%);
+}
+
+/* Grain overlay */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.08;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    mix-blend-mode: overlay;
+}
+
+/* Subtle floating glow */
+body::after {
+    content: '';
+    position: fixed;
+    top: -20%;
+    right: -20%;
+    width: 60%;
+    height: 60%;
+    background: radial-gradient(circle, rgba(80, 90, 200, 0.18), transparent 70%);
+    filter: blur(60px);
+    pointer-events: none;
+    z-index: 0;
+    animation: float 25s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(-15%, 15%) scale(1.15); }
+}
+
+#root {
+    height: 100vh;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    max-width: 500px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+}
+
+/* ============================================
+   NAV BAR
+   ============================================ */
+.nav-bar {
+    padding: max(env(safe-area-inset-top), 16px) 20px 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 56px;
+}
+
+.nav-title {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    background: linear-gradient(135deg, #ffffff 0%, #c4d8ff 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.nav-icon-btn {
+    width: 44px; height: 44px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid var(--glass-border);
+    border-radius: 50%;
+    color: var(--text);
+    cursor: pointer;
+    transition: transform 0.15s, background 0.2s;
+    box-shadow: var(--shadow-glass);
+    position: relative;
+    overflow: hidden;
+}
+.nav-icon-btn::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 50%;
+    background: linear-gradient(180deg, var(--glass-highlight), transparent);
+    pointer-events: none;
+}
+.nav-icon-btn:active { transform: scale(0.92); background: var(--glass-bg-strong); }
+.nav-icon-btn svg { width: 22px; height: 22px; position: relative; z-index: 1; }
+
+/* ============================================
+   SCROLL CONTENT
+   ============================================ */
+.scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 6px 20px 130px;
+    -webkit-overflow-scrolling: touch;
+    animation: fadeIn 0.35s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================
+   GLASS BASE
+   ============================================ */
+.glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-glass);
+    position: relative;
+    overflow: hidden;
+}
+.glass::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 40%;
+    background: linear-gradient(180deg, var(--glass-highlight), transparent);
+    pointer-events: none;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+
+/* ============================================
+   SEGMENTED CONTROL
+   ============================================ */
+.segmented {
+    display: flex;
+    padding: 4px;
+    margin-bottom: 16px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-sm);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    gap: 2px;
+}
+.segment {
+    flex: 1;
+    padding: 10px 8px;
+    background: none;
+    border: none;
+    border-radius: calc(var(--radius-sm) - 6px);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.segment.active {
+    background: linear-gradient(135deg, rgba(255,255,255,0.18), rgba(255,255,255,0.08));
+    color: var(--text);
+    font-weight: 600;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);
+}
+
+/* ============================================
+   NOTE CARDS
+   ============================================ */
+.note-card {
+    padding: 18px 20px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: transform 0.15s, background 0.2s;
+}
+.note-card:active { transform: scale(0.98); background: var(--glass-bg-strong); }
+.note-card > * { position: relative; z-index: 1; }
+
+.note-title {
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    letter-spacing: -0.01em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.note-preview {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+    margin-bottom: 8px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.note-meta {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    font-weight: 500;
+}
+
+/* ============================================
+   SHIFT CARDS
+   ============================================ */
+.shift-card {
+    padding: 18px 20px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: transform 0.15s;
+}
+.shift-card:active { transform: scale(0.98); }
+.shift-card > * { position: relative; z-index: 1; }
+
+.shift-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+.shift-date { font-size: 16px; font-weight: 600; letter-spacing: -0.01em; }
+
+.shift-time {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.shift-time svg { opacity: 0.8; }
+
+.shift-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.shift-hours { font-size: 13px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+.shift-earnings {
+    font-size: 20px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+    background: linear-gradient(135deg, #ffffff 0%, #c4d8ff 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.badge {
+    padding: 3px 9px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 600;
+    background: rgba(251, 191, 36, 0.18);
+    color: var(--warning);
+    border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+/* ============================================
+   EMPTY STATE
+   ============================================ */
+.empty {
+    padding: 80px 20px;
+    text-align: center;
+}
+.empty-icon {
+    width: 80px; height: 80px;
+    margin: 0 auto 20px;
+    background: var(--glass-bg-strong);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.empty-icon svg { width: 36px; height: 36px; color: var(--text-secondary); }
+.empty h2 { font-size: 18px; font-weight: 600; margin-bottom: 6px; }
+.empty p { font-size: 14px; color: var(--text-secondary); }
+
+/* ============================================
+   EARNINGS HERO
+   ============================================ */
+.earnings-hero {
+    padding: 28px 24px;
+    margin-bottom: 14px;
+    text-align: center;
+    border-radius: var(--radius-lg);
+}
+.earnings-hero::before { border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
+
+.earnings-label {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.earnings-big {
+    font-size: 48px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    background: linear-gradient(135deg, #ffffff 0%, #c4b5fd 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    position: relative;
+    font-variant-numeric: tabular-nums;
+}
+.earnings-small { font-size: 36px; }
+
+.earnings-sub {
+    margin-top: 10px;
+    font-size: 13px;
+    color: var(--text-tertiary);
+    position: relative;
+}
+
+.earnings-combined {
+    padding: 24px;
+    margin-top: 16px;
+    border-radius: var(--radius-lg);
+    background:
+        linear-gradient(135deg, rgba(139, 92, 246, 0.25), rgba(99, 102, 241, 0.15)),
+        var(--glass-bg);
+    border: 1px solid rgba(167, 139, 250, 0.3);
+    box-shadow: 0 8px 40px rgba(139, 92, 246, 0.2);
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(24px);
+}
+.earnings-combined::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 50%;
+    background: linear-gradient(180deg, rgba(255,255,255,0.15), transparent);
+    pointer-events: none;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+/* ============================================
+   FLOATING TAB BAR (4 tabs)
+   ============================================ */
+.tab-bar {
+    position: absolute;
+    bottom: max(env(safe-area-inset-bottom), 16px);
+    left: 14px;
+    right: 14px;
+    display: flex;
+    padding: 6px;
+    background: rgba(0, 0, 0, 0.72);
+    backdrop-filter: blur(30px) saturate(180%);
+    -webkit-backdrop-filter: blur(30px) saturate(180%);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-float);
+    z-index: 50;
+}
+.tab-bar::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 50%;
+    background: linear-gradient(180deg, rgba(255,255,255,0.1), transparent);
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    pointer-events: none;
+}
+
+.tab-item {
+    flex: 1;
+    padding: 10px 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 10px;
+    font-family: inherit;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: calc(var(--radius-xl) - 6px);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    z-index: 1;
+}
+.tab-item svg { width: 22px; height: 22px; transition: transform 0.25s; }
+
+.tab-item.active {
+    color: white;
+    background: linear-gradient(135deg, rgba(255,255,255,0.10), rgba(255,255,255,0.04));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 4px 16px rgba(0,0,0,0.5);
+}
+.tab-item.active svg { transform: scale(1.1); }
+
+/* ============================================
+   FLOATING ACTION BUTTON
+   ============================================ */
+.fab {
+    position: absolute;
+    bottom: calc(env(safe-area-inset-bottom) + 105px);
+    right: 20px;
+    width: 58px; height: 58px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(15,15,20,0.92), rgba(0,0,0,0.92));
+    color: white;
+    border: 1px solid rgba(255,255,255,0.18);
+    cursor: pointer;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.6), 0 0 24px rgba(96,165,250,0.25), inset 0 1px 0 rgba(255,255,255,0.18);
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.15s;
+    z-index: 40;
+}
+.fab::before {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    border-radius: 50%;
+    background: linear-gradient(180deg, rgba(255,255,255,0.25), transparent 60%);
+    pointer-events: none;
+}
+.fab:active { transform: scale(0.9); }
+.fab svg { width: 26px; height: 26px; position: relative; z-index: 1; }
+
+/* ============================================
+   SHEETS / MODALS
+   ============================================ */
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(5, 3, 15, 0.65);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    z-index: 100;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    animation: overlayIn 0.25s ease-out;
+}
+.overlay.center { align-items: center; padding: 20px; }
+@keyframes overlayIn { from { opacity: 0; } to { opacity: 1; } }
+
+.sheet {
+    width: 100%;
+    max-width: 500px;
+    max-height: 92vh;
+    background:
+        linear-gradient(180deg, rgba(30, 20, 70, 0.9), rgba(15, 10, 40, 0.97));
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border: 1px solid var(--glass-border);
+    border-bottom: none;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    display: flex;
+    flex-direction: column;
+    animation: sheetUp 0.32s cubic-bezier(0.32, 0.72, 0, 1);
+    overflow: hidden;
+    box-shadow: 0 -20px 60px rgba(0,0,0,0.6);
+    position: relative;
+}
+.sheet::before {
+    content: '';
+    position: absolute;
+    top: 8px; left: 50%;
+    transform: translateX(-50%);
+    width: 40px; height: 4px;
+    background: rgba(255,255,255,0.25);
+    border-radius: 2px;
+}
+
+@keyframes sheetUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+}
+
+.sheet-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 22px 18px 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.sheet-title { font-size: 17px; font-weight: 600; letter-spacing: -0.01em; }
+
+.sheet-btn {
+    background: none;
+    border: none;
+    color: var(--text);
+    font-size: 16px;
+    font-family: inherit;
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+.sheet-btn:active { background: rgba(255,255,255,0.08); }
+.sheet-btn.primary { font-weight: 600; color: #c4b5fd; }
+.sheet-btn:disabled { opacity: 0.35; cursor: default; }
+
+.sheet-body {
+    overflow-y: auto;
+    padding: 18px 20px 32px;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Form groups inside sheet */
+.form-section { margin-bottom: 20px; }
+.form-section-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin: 0 4px 8px;
+}
+.form-group {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+}
+.form-row {
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+.form-row:last-child { border-bottom: none; }
+.form-label { font-size: 15px; flex: 1; min-width: 80px; }
+.form-input {
+    border: none;
+    background: none;
+    font-size: 16px;
+    color: var(--text);
+    font-family: inherit;
+    text-align: right;
+    min-width: 0;
+    flex: 1;
+    outline: none;
+    font-variant-numeric: tabular-nums;
+}
+.form-input::placeholder { color: var(--text-tertiary); }
+.form-input.text { text-align: left; }
+.form-textarea {
+    width: 100%;
+    min-height: 160px;
+    border: none;
+    background: none;
+    font-size: 16px;
+    font-family: inherit;
+    color: var(--text);
+    resize: none;
+    padding: 14px 16px;
+    outline: none;
+    line-height: 1.5;
+}
+.form-textarea::placeholder { color: var(--text-tertiary); }
+
+input[type="date"], input[type="time"] {
+    color: var(--text);
+    color-scheme: dark;
+    background: none;
+    border: none;
+    font-family: inherit;
+    font-size: 15px;
+}
+
+.error-box {
+    background: rgba(248, 113, 113, 0.12);
+    border: 1px solid rgba(248, 113, 113, 0.25);
+    color: #fecaca;
+    padding: 11px 14px;
+    border-radius: 10px;
+    font-size: 13px;
+    margin-bottom: 14px;
+}
+
+.review-banner {
+    background: rgba(251, 191, 36, 0.12);
+    border: 1px solid rgba(251, 191, 36, 0.3);
+    color: #fde68a;
+    padding: 12px 14px;
+    border-radius: 12px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.delete-btn {
+    width: 100%;
+    padding: 14px;
+    margin-top: 16px;
+    background: rgba(248, 113, 113, 0.12);
+    border: 1px solid rgba(248, 113, 113, 0.25);
+    color: #fecaca;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.2s;
+}
+.delete-btn:active { background: rgba(248, 113, 113, 0.22); }
+
+/* Alert */
+.alert {
+    width: 280px;
+    padding: 24px;
+    text-align: center;
+    background: linear-gradient(180deg, rgba(40, 25, 90, 0.95), rgba(20, 10, 50, 0.98));
+    backdrop-filter: blur(40px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    animation: alertPop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes alertPop {
+    from { transform: scale(0.85); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+.alert h3 { font-size: 17px; font-weight: 600; margin-bottom: 8px; }
+.alert p { font-size: 13px; color: var(--text-secondary); margin-bottom: 18px; line-height: 1.45; }
+.alert-buttons { display: flex; gap: 10px; }
+.alert-buttons button {
+    flex: 1;
+    padding: 11px;
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    background: var(--glass-bg);
+    color: var(--text);
+    transition: background 0.2s;
+}
+.alert-buttons .destructive {
+    background: rgba(248, 113, 113, 0.22);
+    border-color: rgba(248, 113, 113, 0.4);
+    color: #fecaca;
+}
+
+/* Settings */
+.settings-group {
+    padding: 6px 0;
+    margin-bottom: 14px;
+}
+.settings-row {
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    position: relative;
+    z-index: 1;
+}
+.settings-row:last-child { border-bottom: none; }
+.settings-icon {
+    width: 34px; height: 34px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #8b5cf6, #6366f1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.35);
+}
+.settings-icon svg { width: 18px; height: 18px; color: white; }
+.settings-label { flex: 1; font-size: 15px; font-weight: 500; }
+.settings-value { font-size: 14px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+.settings-input {
+    width: 110px;
+    padding: 8px 12px;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: inherit;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    color: var(--text);
+    text-align: right;
+    outline: none;
+    font-variant-numeric: tabular-nums;
+}
+
+.theme-select {
+    display: flex;
+    background: rgba(255,255,255,0.06);
+    border-radius: 10px;
+    padding: 3px;
+    gap: 2px;
+    width: 100%;
+}
+.theme-option {
+    flex: 1;
+    padding: 8px 10px;
+    background: none;
+    border: none;
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.theme-option.active {
+    background: linear-gradient(135deg, rgba(167, 139, 250, 0.4), rgba(99, 102, 241, 0.25));
+    color: var(--text);
+    font-weight: 600;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);
+}
+
+.section-title {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-tertiary);
+    margin: 18px 4px 8px;
+}
+.section-title:first-of-type { margin-top: 4px; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <script type="text/babel" data-presets="react">
+const { useState, useEffect, useMemo } = React;
+
+/* ============================================
+   STORAGE
+   ============================================ */
+const STORAGE_KEY = 'shift-app-v3';
+
+function loadState() {
+    try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return initialState();
+        const parsed = JSON.parse(raw);
+        return {
+            notes: parsed.notes || [],
+            shifts: parsed.shifts || [],
+            settings: { hourlyRate: 150, theme: 'dark', ...(parsed.settings || {}) }
+        };
+    } catch {
+        return initialState();
+    }
+}
+
+function initialState() {
+    return { notes: [], shifts: [], settings: { hourlyRate: 150, theme: 'dark' } };
+}
+
+function saveState(state) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+/* ============================================
+   HELPERS
+   ============================================ */
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+
+// CZK with spaces: "1 234 Kč"
+const fmtCZK = (n) => {
+    const rounded = Math.round(n || 0);
+    return rounded.toLocaleString('cs-CZ').replace(/,/g, ' ') + ' Kč';
+};
+
+const fmtHours = (h) => (h || 0).toFixed(2).replace('.', ',') + ' h';
+
+const fmtDate = (iso) => new Date(iso).toLocaleDateString('cs-CZ',
+    { weekday: 'short', day: 'numeric', month: 'short' });
+
+const fmtTime = (iso) => {
+    const d = new Date(iso);
+    return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+};
+
+const fmtRelative = (iso) => {
+    const diff = Date.now() - new Date(iso).getTime();
+    const d = Math.floor(diff / 86400000);
+    if (d === 0) return 'Dnes';
+    if (d === 1) return 'Včera';
+    if (d < 7) return d + ' dny zpět';
+    return new Date(iso).toLocaleDateString('cs-CZ');
+};
+
+const todayStr = () => new Date().toISOString().split('T')[0];
+const defaultTime = (h) => String(h).padStart(2, '0') + ':00';
+
+const combineDateAndTime = (dateStr, timeStr) => {
+    const d = new Date(dateStr + 'T' + timeStr + ':00');
+    return d.toISOString();
+};
+
+const getTimeStr = (iso) => {
+    const d = new Date(iso);
+    return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+};
+
+const hoursBetween = (startIso, endIso) => {
+    return Math.max(0, (new Date(endIso) - new Date(startIso)) / 3600000);
+};
+
+/* ============================================
+   ICONS
+   ============================================ */
+const Icon = ({ name, size = 24 }) => {
+    const paths = {
+        notes: <><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2" strokeWidth="1.8"/></>,
+        shifts: <><rect x="3" y="5" width="18" height="16" rx="2" strokeWidth="1.8"/><path d="M3 9h18M8 3v4M16 3v4" strokeWidth="1.8" strokeLinecap="round"/></>,
+        wage: <><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" strokeWidth="1.8"/></>,
+        settings: <><circle cx="12" cy="12" r="3" strokeWidth="1.8"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" strokeWidth="1.8"/></>,
+        plus: <path d="M12 5v14M5 12h14" strokeWidth="2.2" strokeLinecap="round"/>,
+        close: <path d="M18 6L6 18M6 6l12 12" strokeWidth="2" strokeLinecap="round"/>,
+        clock: <><circle cx="12" cy="12" r="10" strokeWidth="1.8"/><path d="M12 6v6l4 2" strokeWidth="1.8" strokeLinecap="round"/></>,
+        moon: <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" strokeWidth="1.8"/>,
+        alert: <><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0zM12 9v4M12 17h.01" strokeWidth="1.8" strokeLinecap="round"/></>,
+        note: <><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" strokeWidth="1.8"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" strokeWidth="1.8"/></>,
+        check: <><circle cx="12" cy="12" r="10" strokeWidth="1.8"/><path d="M9 12l2 2 4-4" strokeWidth="1.8" strokeLinecap="round"/></>,
+        calendar: <><rect x="3" y="4" width="18" height="18" rx="2" strokeWidth="1.8"/><path d="M16 2v4M8 2v4M3 10h18" strokeWidth="1.8"/></>,
+        info: <><circle cx="12" cy="12" r="10" strokeWidth="1.8"/><path d="M12 16v-4M12 8h.01" strokeWidth="1.8" strokeLinecap="round"/></>,
+    };
+    return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinejoin="round" width={size} height={size}>
+            {paths[name]}
+        </svg>
+    );
+};
+
+/* ============================================
+   THEME
+   ============================================ */
+function useTheme(pref) {
+    useEffect(() => {
+        const apply = () => {
+            const isLight = pref === 'light' ||
+                (pref === 'auto' && !window.matchMedia('(prefers-color-scheme: dark)').matches);
+            document.documentElement.setAttribute('data-theme', isLight ? 'light' : 'dark');
+        };
+        apply();
+        const mq = window.matchMedia('(prefers-color-scheme: dark)');
+        mq.addEventListener('change', apply);
+        return () => mq.removeEventListener('change', apply);
+    }, [pref]);
+}
+
+/* ============================================
+   ROOT APP
+   ============================================ */
+function App() {
+    const [state, setState] = useState(loadState);
+    const [tab, setTab] = useState('notes');
+
+    useEffect(() => { saveState(state); }, [state]);
+    useTheme(state.settings.theme);
+
+    // Auto-rollover: upcoming -> completed when end time passed
+    useEffect(() => {
+        const check = () => {
+            setState(s => {
+                const now = Date.now();
+                let changed = false;
+                const shifts = s.shifts.map(sh => {
+                    if (sh.status === 'upcoming' && new Date(sh.endTime).getTime() <= now) {
+                        changed = true;
+                        return { ...sh, status: 'completed', needsReview: true };
+                    }
+                    return sh;
+                });
+                return changed ? { ...s, shifts } : s;
+            });
+        };
+        check();
+        const id = setInterval(check, 60000);
+        return () => clearInterval(id);
+    }, []);
+
+    const actions = {
+        addNote: (title, content) => {
+            const now = new Date().toISOString();
+            setState(s => ({ ...s, notes: [...s.notes, { id: uid(), title, content, createdAt: now, updatedAt: now }] }));
+        },
+        updateNote: (id, title, content) => {
+            setState(s => ({ ...s, notes: s.notes.map(n => n.id === id ? { ...n, title, content, updatedAt: new Date().toISOString() } : n) }));
+        },
+        deleteNote: (id) => {
+            setState(s => ({ ...s, notes: s.notes.filter(n => n.id !== id) }));
+        },
+        addShift: (shift) => {
+            setState(s => ({ ...s, shifts: [...s.shifts, { ...shift, id: uid(), createdAt: new Date().toISOString() }] }));
+        },
+        updateShift: (id, updates) => {
+            setState(s => ({ ...s, shifts: s.shifts.map(sh => sh.id === id ? { ...sh, ...updates } : sh) }));
+        },
+        deleteShift: (id) => {
+            setState(s => ({ ...s, shifts: s.shifts.filter(sh => sh.id !== id) }));
+        },
+        setSetting: (key, value) => {
+            setState(s => ({ ...s, settings: { ...s.settings, [key]: value } }));
+        }
+    };
+
+    return (
+        <>
+            {tab === 'notes' && <NotesScreen notes={state.notes} actions={actions} />}
+            {tab === 'shifts' && <ShiftsScreen shifts={state.shifts} defaultRate={state.settings.hourlyRate} actions={actions} />}
+            {tab === 'earnings' && <EarningsScreen shifts={state.shifts} />}
+            {tab === 'settings' && <SettingsScreen settings={state.settings} actions={actions} />}
+            <TabBar current={tab} onChange={setTab} />
+        </>
+    );
+}
+
+/* ============================================
+   TAB BAR — 4 tabs
+   ============================================ */
+function TabBar({ current, onChange }) {
+    const tabs = [
+        { id: 'notes', label: 'Poznámky', icon: 'notes' },
+        { id: 'shifts', label: 'Směny', icon: 'shifts' },
+        { id: 'earnings', label: 'Výdělek', icon: 'wage' },
+        { id: 'settings', label: 'Nastavení', icon: 'settings' }
+    ];
+    return (
+        <nav className="tab-bar">
+            {tabs.map(t => (
+                <button key={t.id}
+                        className={'tab-item' + (current === t.id ? ' active' : '')}
+                        onClick={() => onChange(t.id)}>
+                    <Icon name={t.icon} size={22} />
+                    <span>{t.label}</span>
+                </button>
+            ))}
+        </nav>
+    );
+}
+
+/* ============================================
+   NOTES SCREEN
+   ============================================ */
+function NotesScreen({ notes, actions }) {
+    const [editor, setEditor] = useState(null);
+    const sorted = [...notes].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+
+    return (
+        <>
+            <header className="nav-bar">
+                <div className="nav-title">Poznámky</div>
+            </header>
+            <main className="scroll">
+                {sorted.length === 0 ? (
+                    <div className="empty">
+                        <div className="empty-icon"><Icon name="note" size={36} /></div>
+                        <h2>Žádné poznámky</h2>
+                        <p>Ťukni na + a něco si zapiš.</p>
+                    </div>
+                ) : (
+                    sorted.map(note => (
+                        <div key={note.id} className="glass note-card"
+                             onClick={() => setEditor({ mode: 'edit', note })}>
+                            <div className="note-title">{note.title || 'Bez názvu'}</div>
+                            {note.content && <div className="note-preview">{note.content}</div>}
+                            <div className="note-meta">{fmtRelative(note.updatedAt)}</div>
+                        </div>
+                    ))
+                )}
+            </main>
+            <button className="fab" onClick={() => setEditor({ mode: 'create' })} aria-label="Nová poznámka">
+                <Icon name="plus" size={26} />
+            </button>
+            {editor && (
+                <NoteEditor mode={editor.mode} note={editor.note}
+                    onSave={(title, content) => {
+                        if (editor.mode === 'create') actions.addNote(title, content);
+                        else actions.updateNote(editor.note.id, title, content);
+                        setEditor(null);
+                    }}
+                    onDelete={() => { actions.deleteNote(editor.note.id); setEditor(null); }}
+                    onClose={() => setEditor(null)} />
+            )}
+        </>
+    );
+}
+
+function NoteEditor({ mode, note, onSave, onDelete, onClose }) {
+    const [title, setTitle] = useState(note?.title || '');
+    const [content, setContent] = useState(note?.content || '');
+    const [confirmDelete, setConfirmDelete] = useState(false);
+    const canSave = title.trim() || content.trim();
+
+    return (
+        <div className="overlay" onClick={onClose}>
+            <div className="sheet" onClick={e => e.stopPropagation()}>
+                <div className="sheet-header">
+                    <button className="sheet-btn" onClick={onClose}>Zrušit</button>
+                    <div className="sheet-title">{mode === 'edit' ? 'Upravit' : 'Nová poznámka'}</div>
+                    <button className="sheet-btn primary" disabled={!canSave}
+                            onClick={() => canSave && onSave(title, content)}>Uložit</button>
+                </div>
+                <div className="sheet-body">
+                    <div className="form-section">
+                        <div className="form-group">
+                            <input className="form-input text" style={{padding: '14px 16px', width: '100%'}} type="text" placeholder="Název"
+                                   value={title} onChange={e => setTitle(e.target.value)} autoFocus />
+                        </div>
+                    </div>
+                    <div className="form-section">
+                        <div className="form-group">
+                            <textarea className="form-textarea" placeholder="Napiš poznámku..."
+                                      value={content} onChange={e => setContent(e.target.value)} />
+                        </div>
+                    </div>
+                    {mode === 'edit' && (
+                        <button className="delete-btn" onClick={() => setConfirmDelete(true)}>Smazat poznámku</button>
+                    )}
+                </div>
+            </div>
+            {confirmDelete && (
+                <div className="overlay center" onClick={e => { e.stopPropagation(); setConfirmDelete(false); }}>
+                    <div className="alert" onClick={e => e.stopPropagation()}>
+                        <h3>Smazat poznámku?</h3>
+                        <p>Tuto akci nelze vzít zpět.</p>
+                        <div className="alert-buttons">
+                            <button onClick={() => setConfirmDelete(false)}>Zrušit</button>
+                            <button className="destructive" onClick={onDelete}>Smazat</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}
+
+/* ============================================
+   SHIFTS SCREEN
+   ============================================ */
+function ShiftsScreen({ shifts, defaultRate, actions }) {
+    const [section, setSection] = useState('upcoming');
+    const [addMode, setAddMode] = useState(null);
+    const [editTarget, setEditTarget] = useState(null);
+
+    const upcoming = shifts.filter(s => s.status === 'upcoming').sort((a, b) => new Date(a.date) - new Date(b.date));
+    const past = shifts.filter(s => s.status === 'completed').sort((a, b) => new Date(b.date) - new Date(a.date));
+    const list = section === 'upcoming' ? upcoming : past;
+
+    return (
+        <>
+            <header className="nav-bar">
+                <div className="nav-title">Směny</div>
+            </header>
+            <main className="scroll">
+                <div className="segmented">
+                    <button className={'segment' + (section === 'upcoming' ? ' active' : '')}
+                            onClick={() => setSection('upcoming')}>
+                        Nadcházející{upcoming.length ? ' · ' + upcoming.length : ''}
+                    </button>
+                    <button className={'segment' + (section === 'past' ? ' active' : '')}
+                            onClick={() => setSection('past')}>
+                        Minulé{past.length ? ' · ' + past.length : ''}
+                    </button>
+                </div>
+
+                {list.length === 0 ? (
+                    <div className="empty">
+                        <div className="empty-icon"><Icon name={section === 'upcoming' ? 'calendar' : 'clock'} size={36} /></div>
+                        <h2>{section === 'upcoming' ? 'Žádné plány' : 'Žádné minulé směny'}</h2>
+                        <p>Přidej směnu tlačítkem +</p>
+                    </div>
+                ) : (
+                    list.map(sh => (
+                        <div key={sh.id} className="glass shift-card" onClick={() => setEditTarget(sh)}>
+                            <div className="shift-head">
+                                <div className="shift-date">{fmtDate(sh.date)}</div>
+                                {sh.needsReview && <span className="badge">Zkontroluj</span>}
+                            </div>
+                            <div className="shift-time">
+                                <Icon name="clock" size={14} />
+                                {fmtTime(sh.startTime)} – {fmtTime(sh.endTime)}
+                            </div>
+                            <div className="shift-footer">
+                                <div className="shift-hours">
+                                    {fmtHours(hoursBetween(sh.startTime, sh.endTime))} · {sh.hourlyWage} Kč/h
+                                </div>
+                                <div className="shift-earnings">
+                                    {fmtCZK(hoursBetween(sh.startTime, sh.endTime) * sh.hourlyWage)}
+                                </div>
+                            </div>
+                        </div>
+                    ))
+                )}
+            </main>
+
+            <button className="fab" onClick={() => setAddMode(section)} aria-label="Přidat směnu">
+                <Icon name="plus" size={26} />
+            </button>
+
+            {addMode === 'upcoming' && (
+                <ShiftForm mode="upcoming" defaultRate={defaultRate}
+                    onClose={() => setAddMode(null)}
+                    onSave={(data) => { actions.addShift({ ...data, status: 'upcoming' }); setAddMode(null); }} />
+            )}
+            {addMode === 'past' && (
+                <ShiftForm mode="past" defaultRate={defaultRate}
+                    onClose={() => setAddMode(null)}
+                    onSave={(data) => { actions.addShift({ ...data, status: 'completed' }); setAddMode(null); }} />
+            )}
+            {editTarget && (
+                <ShiftForm mode="edit" shift={editTarget} defaultRate={defaultRate}
+                    onClose={() => setEditTarget(null)}
+                    onSave={(data) => {
+                        const updates = editTarget.status === 'upcoming'
+                            ? { ...data, status: 'upcoming' }
+                            : { ...data, status: 'completed', needsReview: false };
+                        actions.updateShift(editTarget.id, updates);
+                        setEditTarget(null);
+                    }}
+                    onDelete={() => { actions.deleteShift(editTarget.id); setEditTarget(null); }} />
+            )}
+        </>
+    );
+}
+
+/* ============================================
+   SHIFT FORM (add/edit, past/upcoming)
+   ============================================ */
+function ShiftForm({ mode, shift, defaultRate, onClose, onSave, onDelete }) {
+    const isUpcoming = mode === 'upcoming' || (mode === 'edit' && shift?.status === 'upcoming');
+
+    const [date, setDate] = useState(shift ? shift.date.split('T')[0] : todayStr());
+    const [startTime, setStartTime] = useState(shift ? getTimeStr(shift.startTime) : defaultTime(9));
+    const [endTime, setEndTime] = useState(shift ? getTimeStr(shift.endTime) : defaultTime(17));
+    const [duration, setDuration] = useState(
+        shift ? hoursBetween(shift.startTime, shift.endTime).toFixed(1) : '6'
+    );
+    const [wage, setWage] = useState(shift ? shift.hourlyWage : (defaultRate || 150));
+    const [error, setError] = useState('');
+    const [confirmDelete, setConfirmDelete] = useState(false);
+
+    const calc = useMemo(() => {
+        if (isUpcoming) {
+            const hrs = parseFloat(duration) || 0;
+            return { hours: hrs, earnings: hrs * (parseFloat(wage) || 0) };
+        }
+        const startIso = combineDateAndTime(date, startTime);
+        const endIso = combineDateAndTime(date, endTime);
+        const hrs = hoursBetween(startIso, endIso);
+        return { hours: hrs, earnings: hrs * (parseFloat(wage) || 0) };
+    }, [date, startTime, endTime, duration, wage, isUpcoming]);
+
+    const handleSave = () => {
+        setError('');
+        const w = parseFloat(wage);
+        if (isNaN(w) || w < 0) return setError('Hodinová sazba musí být nezáporné číslo.');
+
+        if (isUpcoming) {
+            const dur = parseFloat(duration);
+            if (isNaN(dur) || dur <= 0) return setError('Délka musí být větší než 0.');
+            const startIso = combineDateAndTime(date, startTime);
+            const endIso = new Date(new Date(startIso).getTime() + dur * 3600000).toISOString();
+            onSave({ date: new Date(date).toISOString(), startTime: startIso, endTime: endIso, hourlyWage: w });
+        } else {
+            const startIso = combineDateAndTime(date, startTime);
+            const endIso = combineDateAndTime(date, endTime);
+            if (new Date(endIso) <= new Date(startIso)) return setError('Konec musí být později než začátek.');
+            onSave({ date: new Date(date).toISOString(), startTime: startIso, endTime: endIso, hourlyWage: w });
+        }
+    };
+
+    const title = mode === 'upcoming' ? 'Plánovaná směna'
+                : mode === 'past' ? 'Minulá směna'
+                : (shift?.needsReview ? 'Zkontrolovat směnu' : 'Upravit směnu');
+
+    return (
+        <div className="overlay" onClick={onClose}>
+            <div className="sheet" onClick={e => e.stopPropagation()}>
+                <div className="sheet-header">
+                    <button className="sheet-btn" onClick={onClose}>Zrušit</button>
+                    <div className="sheet-title">{title}</div>
+                    <button className="sheet-btn primary" onClick={handleSave}>Uložit</button>
+                </div>
+                <div className="sheet-body">
+                    {mode === 'edit' && shift?.needsReview && (
+                        <div className="review-banner">
+                            <Icon name="alert" size={16} />
+                            <span>Tahle plánovaná směna skončila — potvrď skutečné hodiny.</span>
+                        </div>
+                    )}
+                    {error && <div className="error-box">{error}</div>}
+
+                    <div className="form-section">
+                        <div className="form-section-title">Kdy</div>
+                        <div className="form-group">
+                            <div className="form-row">
+                                <div className="form-label">Datum</div>
+                                <input className="form-input" type="date" value={date}
+                                       onChange={e => setDate(e.target.value)} />
+                            </div>
+                            <div className="form-row">
+                                <div className="form-label">Začátek</div>
+                                <input className="form-input" type="time" value={startTime}
+                                       onChange={e => setStartTime(e.target.value)} />
+                            </div>
+                            {!isUpcoming && (
+                                <div className="form-row">
+                                    <div className="form-label">Konec</div>
+                                    <input className="form-input" type="time" value={endTime}
+                                           onChange={e => setEndTime(e.target.value)} />
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {isUpcoming && (
+                        <div className="form-section">
+                            <div className="form-section-title">Odhad</div>
+                            <div className="form-group">
+                                <div className="form-row">
+                                    <div className="form-label">Délka (h)</div>
+                                    <input className="form-input" type="number" step="0.5" min="0"
+                                           value={duration} onChange={e => setDuration(e.target.value)} />
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="form-section">
+                        <div className="form-section-title">Odměna</div>
+                        <div className="form-group">
+                            <div className="form-row">
+                                <div className="form-label">Sazba (Kč/h)</div>
+                                <input className="form-input" type="number" step="10" min="0"
+                                       value={wage} onChange={e => setWage(e.target.value)} />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="form-section">
+                        <div className="form-section-title">{isUpcoming ? 'Očekáváno' : 'Souhrn'}</div>
+                        <div className="form-group">
+                            <div className="form-row">
+                                <div className="form-label">Hodiny</div>
+                                <div style={{fontVariantNumeric: 'tabular-nums'}}>{fmtHours(calc.hours)}</div>
+                            </div>
+                            <div className="form-row">
+                                <div className="form-label">Výdělek</div>
+                                <div style={{fontVariantNumeric: 'tabular-nums', fontWeight: 700, color: '#c4b5fd'}}>
+                                    {isUpcoming && '≈ '}{fmtCZK(calc.earnings)}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {mode === 'edit' && (
+                        <button className="delete-btn" onClick={() => setConfirmDelete(true)}>Smazat směnu</button>
+                    )}
+                </div>
+            </div>
+            {confirmDelete && (
+                <div className="overlay center" onClick={e => { e.stopPropagation(); setConfirmDelete(false); }}>
+                    <div className="alert" onClick={e => e.stopPropagation()}>
+                        <h3>Smazat směnu?</h3>
+                        <p>Tuto akci nelze vzít zpět.</p>
+                        <div className="alert-buttons">
+                            <button onClick={() => setConfirmDelete(false)}>Zrušit</button>
+                            <button className="destructive" onClick={onDelete}>Smazat</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}
+
+/* ============================================
+   EARNINGS SCREEN
+   ============================================ */
+function EarningsScreen({ shifts }) {
+    const summary = useMemo(() => {
+        const completed = shifts.filter(s => s.status === 'completed');
+        const upcoming = shifts.filter(s => s.status === 'upcoming');
+        const totalEarned = completed.reduce((s, x) => s + hoursBetween(x.startTime, x.endTime) * x.hourlyWage, 0);
+        const totalHours = completed.reduce((s, x) => s + hoursBetween(x.startTime, x.endTime), 0);
+        const expected = upcoming.reduce((s, x) => s + hoursBetween(x.startTime, x.endTime) * x.hourlyWage, 0);
+        const expectedHours = upcoming.reduce((s, x) => s + hoursBetween(x.startTime, x.endTime), 0);
+        return {
+            totalEarned, totalHours, expected, expectedHours,
+            completedCount: completed.length, upcomingCount: upcoming.length,
+            combined: totalEarned + expected
+        };
+    }, [shifts]);
+
+    return (
+        <>
+            <header className="nav-bar">
+                <div className="nav-title">Výdělek</div>
+            </header>
+            <main className="scroll">
+                {shifts.length === 0 ? (
+                    <div className="empty">
+                        <div className="empty-icon"><Icon name="wage" size={36} /></div>
+                        <h2>Žádný výdělek</h2>
+                        <p>Přidej směny v záložce Směny.</p>
+                    </div>
+                ) : (
+                    <>
+                        <div className="glass earnings-hero">
+                            <div className="earnings-label">
+                                <Icon name="check" size={16} />
+                                Celkem vyděláno
+                            </div>
+                            <div className="earnings-big">{fmtCZK(summary.totalEarned)}</div>
+                            <div className="earnings-sub">
+                                {summary.completedCount} {summary.completedCount === 1 ? 'směna' : summary.completedCount < 5 ? 'směny' : 'směn'} · {fmtHours(summary.totalHours)}
+                            </div>
+                        </div>
+
+                        <div className="glass earnings-hero">
+                            <div className="earnings-label">
+                                <Icon name="calendar" size={16} />
+                                Očekávaný výdělek
+                            </div>
+                            <div className="earnings-big earnings-small">≈ {fmtCZK(summary.expected)}</div>
+                            <div className="earnings-sub">
+                                {summary.upcomingCount} {summary.upcomingCount === 1 ? 'plánovaná' : 'plánované'} · ~{fmtHours(summary.expectedHours)}
+                            </div>
+                        </div>
+
+                        <div className="earnings-combined">
+                            <div className="earnings-label" style={{marginBottom: 10}}>Celkový výhled</div>
+                            <div className="earnings-big">{fmtCZK(summary.combined)}</div>
+                            <div className="earnings-sub">Minulé + plánované</div>
+                        </div>
+                    </>
+                )}
+            </main>
+        </>
+    );
+}
+
+/* ============================================
+   SETTINGS SCREEN
+   ============================================ */
+function SettingsScreen({ settings, actions }) {
+    return (
+        <>
+            <header className="nav-bar">
+                <div className="nav-title">Nastavení</div>
+            </header>
+            <main className="scroll">
+                <div className="section-title">Brigáda</div>
+                <div className="glass settings-group">
+                    <div className="settings-row">
+                        <div className="settings-icon"><Icon name="wage" size={18} /></div>
+                        <div className="settings-label">Výchozí sazba</div>
+                        <input className="settings-input" type="number" min="0" step="10"
+                               value={settings.hourlyRate}
+                               onChange={e => actions.setSetting('hourlyRate', parseFloat(e.target.value) || 0)} />
+                        <span style={{color: 'var(--text-secondary)', fontSize: '13px'}}>Kč/h</span>
+                    </div>
+                </div>
+
+                <div className="section-title">Vzhled</div>
+                <div className="glass settings-group">
+                    <div className="settings-row" style={{flexDirection: 'column', alignItems: 'stretch', gap: '12px'}}>
+                        <div style={{display: 'flex', alignItems: 'center', gap: '14px'}}>
+                            <div className="settings-icon"><Icon name="moon" size={18} /></div>
+                            <div className="settings-label">Téma</div>
+                        </div>
+                        <div className="theme-select">
+                            {['light', 'auto', 'dark'].map(t => (
+                                <button key={t}
+                                        className={'theme-option' + (settings.theme === t ? ' active' : '')}
+                                        onClick={() => actions.setSetting('theme', t)}>
+                                    {t === 'light' ? 'Světlý' : t === 'dark' ? 'Tmavý' : 'Auto'}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                <div className="section-title">O aplikaci</div>
+                <div className="glass settings-group">
+                    <div className="settings-row">
+                        <div className="settings-icon"><Icon name="info" size={18} /></div>
+                        <div className="settings-label">Verze</div>
+                        <div className="settings-value">3.0</div>
+                    </div>
+                    <div className="settings-row">
+                        <div className="settings-label" style={{marginLeft: 48}}>Úložiště</div>
+                        <div className="settings-value">Lokálně v prohlížeči</div>
+                    </div>
+                </div>
+            </main>
+        </>
+    );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+</body>
+</html>
