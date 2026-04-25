@@ -990,6 +990,153 @@ input[type="date"], input[type="time"], input[type="number"] {
     margin: 18px 4px 8px;
 }
 .section-title:first-of-type { margin-top: 4px; }
+
+/* ============================================
+   AUTH / LOGIN SCREEN
+   ============================================ */
+.auth-wrap {
+    height: 100%;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: max(env(safe-area-inset-top), 24px) 24px max(env(safe-area-inset-bottom), 24px);
+    max-width: 500px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+    animation: fadeIn 0.4s ease-out;
+}
+.auth-hero {
+    text-align: center;
+    margin-bottom: 28px;
+}
+.auth-logo {
+    width: 72px;
+    height: 72px;
+    border-radius: 22px;
+    margin: 0 auto 18px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 38px;
+    font-weight: 800;
+    color: #fff;
+    box-shadow: 0 12px 32px rgba(122, 166, 255, 0.4),
+                inset 0 1px 0 rgba(255,255,255,0.25);
+    letter-spacing: -0.02em;
+}
+.auth-title {
+    font-size: 34px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin-bottom: 6px;
+    background: linear-gradient(135deg, #ffffff 0%, #c4d8ff 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.auth-sub {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+.auth-card {
+    padding: 22px 18px 18px;
+    border-radius: var(--radius-lg);
+}
+.auth-primary {
+    width: 100%;
+    padding: 14px;
+    margin-top: 4px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    border: none;
+    border-radius: var(--radius-sm);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(122, 166, 255, 0.35),
+                inset 0 1px 0 rgba(255,255,255,0.18);
+    transition: transform 0.12s ease, opacity 0.2s;
+}
+.auth-primary:active { transform: scale(0.98); }
+.auth-primary:disabled { opacity: 0.55; cursor: default; }
+
+.auth-links {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+.auth-link {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-family: inherit;
+    cursor: pointer;
+    padding: 6px 8px;
+    border-radius: 6px;
+    transition: color 0.2s, background 0.2s;
+}
+.auth-link:active { background: rgba(255,255,255,0.05); }
+
+/* Account section v Settings */
+.account-row {
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+.account-avatar {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+.account-meta { flex: 1; min-width: 0; }
+.account-email {
+    font-size: 14px;
+    color: var(--text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.account-status {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.sync-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--success);
+    box-shadow: 0 0 6px var(--success);
+}
+
+/* Splash spinner */
+.splash-spinner {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: 3px solid rgba(255, 255, 255, 0.12);
+    border-top-color: var(--accent);
+    animation: spin 0.9s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -1055,37 +1202,83 @@ input[type="date"], input[type="time"], input[type="number"] {
 
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+    <!-- Firebase compat SDK — globální `firebase` namespace, kompatibilní s naším CDN/babel setupem -->
+    <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <script type="text/babel" data-presets="react">
-const { useState, useEffect, useMemo } = React;
+const { useState, useEffect, useMemo, useRef } = React;
 
 /* ============================================
-   STORAGE
+   FIREBASE — init, auth, Firestore
+   ============================================ */
+const firebaseConfig = {
+    apiKey: "AIzaSyBBgwA0MzMDOB4S7H5EPwEAa1dF8p3RmEo",
+    authDomain: "shift-app-b5b50.firebaseapp.com",
+    projectId: "shift-app-b5b50",
+    storageBucket: "shift-app-b5b50.firebasestorage.app",
+    messagingSenderId: "690219572845",
+    appId: "1:690219572845:web:717b2bdba2681bedcde964",
+    measurementId: "G-CG7PQB9T6V"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+// Lokální persistence Firestore — funguje offline, syncne při návratu sítě
+db.enablePersistence({ synchronizeTabs: true }).catch(() => {/* ignore: multiple tabs / unsupported */});
+
+/* ============================================
+   STORAGE — localStorage jako rychlý cache,
+   Firestore jako zdroj pravdy (single doc per user)
    ============================================ */
 const STORAGE_KEY = 'shift-app-v3';
-
-function loadState() {
-    try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return initialState();
-        const parsed = JSON.parse(raw);
-        return {
-            notes: parsed.notes || [],
-            shifts: parsed.shifts || [],
-            settings: { hourlyRate: 150, theme: 'dark', ...(parsed.settings || {}) }
-        };
-    } catch {
-        return initialState();
-    }
-}
+const cacheKey = (uid) => `${STORAGE_KEY}:${uid}`;
 
 function initialState() {
     return { notes: [], shifts: [], settings: { hourlyRate: 150, theme: 'dark' } };
 }
 
-function saveState(state) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+function normalize(parsed) {
+    return {
+        notes: parsed?.notes || [],
+        shifts: parsed?.shifts || [],
+        settings: { hourlyRate: 150, theme: 'dark', ...(parsed?.settings || {}) }
+    };
+}
+
+function loadCachedState(uid) {
+    try {
+        const raw = localStorage.getItem(cacheKey(uid));
+        if (!raw) return null;
+        return normalize(JSON.parse(raw));
+    } catch { return null; }
+}
+
+function saveCachedState(uid, state) {
+    try { localStorage.setItem(cacheKey(uid), JSON.stringify(state)); } catch {}
+}
+
+function userDocRef(uid) {
+    return db.collection('users').doc(uid).collection('state').doc('main');
+}
+
+async function loadFirestoreState(uid) {
+    const snap = await userDocRef(uid).get();
+    if (!snap.exists) {
+        const init = initialState();
+        await userDocRef(uid).set(init);
+        return init;
+    }
+    return normalize(snap.data());
+}
+
+async function saveFirestoreState(uid, state) {
+    await userDocRef(uid).set(state, { merge: false });
 }
 
 /* ============================================
@@ -1162,14 +1355,80 @@ const Icon = ({ name, size = 24 }) => {
 };
 
 /* ============================================
+   AUTH HOOK
+   ============================================ */
+function useAuth() {
+    const [user, setUser] = useState(() => auth.currentUser);
+    const [loading, setLoading] = useState(true);
+    useEffect(() => {
+        return auth.onAuthStateChanged(u => {
+            setUser(u);
+            setLoading(false);
+        });
+    }, []);
+    return { user, loading };
+}
+
+/* ============================================
+   USER STATE HOOK — Firestore + localStorage cache
+   - On mount: instant hydrate z cache, pak fetch z Firestore
+   - On change: write cache okamžitě, write Firestore debounced (600ms)
+   ============================================ */
+function useUserState(uid) {
+    // Inicializace synchronně z cache (instant render bez flashe)
+    const [state, setState] = useState(() => loadCachedState(uid) || initialState());
+    const [hydrated, setHydrated] = useState(false);
+    const saveTimer = useRef(null);
+    const lastSavedRef = useRef(null);
+
+    // Fetch z Firestore při změně uid
+    useEffect(() => {
+        let cancelled = false;
+        loadFirestoreState(uid).then(remote => {
+            if (cancelled) return;
+            setState(remote);
+            saveCachedState(uid, remote);
+            lastSavedRef.current = JSON.stringify(remote);
+            setHydrated(true);
+        }).catch(err => {
+            console.error('Firestore load failed:', err);
+            setHydrated(true); // pokračujeme s cache
+        });
+        return () => { cancelled = true; };
+    }, [uid]);
+
+    // Debounced sync do Firestore při každé změně state
+    useEffect(() => {
+        if (!hydrated) return;
+        saveCachedState(uid, state);
+        const serialized = JSON.stringify(state);
+        if (serialized === lastSavedRef.current) return;
+
+        if (saveTimer.current) clearTimeout(saveTimer.current);
+        saveTimer.current = setTimeout(() => {
+            saveFirestoreState(uid, state)
+                .then(() => { lastSavedRef.current = serialized; })
+                .catch(err => console.error('Firestore save failed:', err));
+        }, 600);
+
+        return () => { if (saveTimer.current) clearTimeout(saveTimer.current); };
+    }, [state, uid, hydrated]);
+
+    return [state, setState, hydrated];
+}
+
+/* ============================================
    THEME
    ============================================ */
 function useTheme(pref) {
     useEffect(() => {
         const apply = () => {
-            const isLight = pref === 'light' ||
-                (pref === 'auto' && !window.matchMedia('(prefers-color-scheme: dark)').matches);
-            document.documentElement.setAttribute('data-theme', isLight ? 'light' : 'dark');
+            let theme;
+            if (pref === 'clean') theme = 'clean';
+            else if (pref === 'light') theme = 'light';
+            else if (pref === 'dark') theme = 'dark';
+            else theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', theme);
         };
         apply();
         const mq = window.matchMedia('(prefers-color-scheme: dark)');
@@ -1179,13 +1438,149 @@ function useTheme(pref) {
 }
 
 /* ============================================
-   ROOT APP
+   LOGIN SCREEN — email + heslo, registrace, reset
+   ============================================ */
+function LoginScreen() {
+    const [mode, setMode] = useState('signin'); // signin | signup | reset
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [busy, setBusy] = useState(false);
+    const [error, setError] = useState('');
+    const [info, setInfo] = useState('');
+
+    const reset = () => { setError(''); setInfo(''); };
+
+    const submit = async (e) => {
+        e?.preventDefault();
+        reset();
+        if (!email.trim()) return setError('Vyplň email.');
+        if (mode !== 'reset' && password.length < 6) return setError('Heslo musí mít alespoň 6 znaků.');
+        setBusy(true);
+        try {
+            if (mode === 'signin') {
+                await auth.signInWithEmailAndPassword(email.trim(), password);
+            } else if (mode === 'signup') {
+                await auth.createUserWithEmailAndPassword(email.trim(), password);
+            } else if (mode === 'reset') {
+                await auth.sendPasswordResetEmail(email.trim());
+                setInfo('Pokud email existuje, poslali jsme ti odkaz na reset hesla.');
+            }
+        } catch (err) {
+            setError(prettyAuthError(err));
+        } finally {
+            setBusy(false);
+        }
+    };
+
+    return (
+        <div className="auth-wrap">
+            <div className="auth-hero">
+                <div className="auth-logo">$</div>
+                <h1 className="auth-title">Shift</h1>
+                <p className="auth-sub">
+                    {mode === 'signin' && 'Přihlas se ke svému účtu'}
+                    {mode === 'signup' && 'Vytvoř si nový účet'}
+                    {mode === 'reset' && 'Pošleme ti email na reset hesla'}
+                </p>
+            </div>
+
+            <form className="glass auth-card" onSubmit={submit}>
+                {error && <div className="error-box">{error}</div>}
+                {info && <div className="review-banner"><span>{info}</span></div>}
+
+                <div className="form-group" style={{marginBottom: 14}}>
+                    <div className="form-row">
+                        <div className="form-label">Email</div>
+                        <input className="form-input text" type="email" autoComplete="email"
+                               inputMode="email" placeholder="ty@email.cz"
+                               value={email} onChange={e => setEmail(e.target.value)} />
+                    </div>
+                    {mode !== 'reset' && (
+                        <div className="form-row">
+                            <div className="form-label">Heslo</div>
+                            <input className="form-input text" type="password"
+                                   autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
+                                   placeholder="••••••••"
+                                   value={password} onChange={e => setPassword(e.target.value)} />
+                        </div>
+                    )}
+                </div>
+
+                <button type="submit" className="auth-primary" disabled={busy}>
+                    {busy ? 'Moment…'
+                        : mode === 'signin' ? 'Přihlásit se'
+                        : mode === 'signup' ? 'Vytvořit účet'
+                        : 'Poslat odkaz'}
+                </button>
+
+                <div className="auth-links">
+                    {mode === 'signin' && (
+                        <>
+                            <button type="button" className="auth-link" onClick={() => { reset(); setMode('reset'); }}>
+                                Zapomenuté heslo
+                            </button>
+                            <button type="button" className="auth-link" onClick={() => { reset(); setMode('signup'); }}>
+                                Nemáš účet? <span style={{color: 'var(--accent)'}}>Zaregistruj se</span>
+                            </button>
+                        </>
+                    )}
+                    {mode === 'signup' && (
+                        <button type="button" className="auth-link" onClick={() => { reset(); setMode('signin'); }}>
+                            Už máš účet? <span style={{color: 'var(--accent)'}}>Přihlas se</span>
+                        </button>
+                    )}
+                    {mode === 'reset' && (
+                        <button type="button" className="auth-link" onClick={() => { reset(); setMode('signin'); }}>
+                            Zpět na přihlášení
+                        </button>
+                    )}
+                </div>
+            </form>
+        </div>
+    );
+}
+
+function prettyAuthError(err) {
+    const code = err?.code || '';
+    const map = {
+        'auth/invalid-email': 'Neplatný email.',
+        'auth/user-disabled': 'Účet je deaktivovaný.',
+        'auth/user-not-found': 'Uživatel neexistuje.',
+        'auth/wrong-password': 'Špatné heslo.',
+        'auth/invalid-credential': 'Špatný email nebo heslo.',
+        'auth/email-already-in-use': 'Email už je registrovaný.',
+        'auth/weak-password': 'Heslo je příliš slabé (alespoň 6 znaků).',
+        'auth/too-many-requests': 'Moc pokusů, zkus to později.',
+        'auth/network-request-failed': 'Chyba sítě, zkontroluj připojení.'
+    };
+    return map[code] || err?.message || 'Něco se pokazilo.';
+}
+
+/* ============================================
+   ROOT APP — auth gate + main appka
    ============================================ */
 function App() {
-    const [state, setState] = useState(loadState);
+    const { user, loading } = useAuth();
+    if (loading) return <SplashScreen />;
+    if (!user) return <LoginScreen />;
+    return <AppShell user={user} />;
+}
+
+function SplashScreen() {
+    return (
+        <div style={{
+            position: 'fixed', inset: 0, display: 'flex',
+            alignItems: 'center', justifyContent: 'center', zIndex: 5
+        }}>
+            <div className="splash-spinner" />
+        </div>
+    );
+}
+
+function AppShell({ user }) {
+    const [state, setState, hydrated] = useUserState(user.uid);
     const [tab, setTab] = useState('notes');
 
-    useEffect(() => { saveState(state); }, [state]);
     useTheme(state.settings.theme);
 
     // Auto-rollover: upcoming -> completed when end time passed
@@ -1239,7 +1634,7 @@ function App() {
             {tab === 'notes' && <NotesScreen notes={state.notes} actions={actions} />}
             {tab === 'shifts' && <ShiftsScreen shifts={state.shifts} defaultRate={state.settings.hourlyRate} actions={actions} />}
             {tab === 'earnings' && <EarningsScreen shifts={state.shifts} />}
-            {tab === 'settings' && <SettingsScreen settings={state.settings} actions={actions} />}
+            {tab === 'settings' && <SettingsScreen settings={state.settings} actions={actions} user={user} />}
             <TabBar current={tab} onChange={setTab} />
         </>
     );
@@ -1674,13 +2069,35 @@ function EarningsScreen({ shifts }) {
 /* ============================================
    SETTINGS SCREEN
    ============================================ */
-function SettingsScreen({ settings, actions }) {
+function SettingsScreen({ settings, actions, user }) {
+    const [signingOut, setSigningOut] = useState(false);
+    const initial = (user?.email || '?').charAt(0).toUpperCase();
+
+    const handleSignOut = async () => {
+        setSigningOut(true);
+        try { await auth.signOut(); }
+        catch (e) { console.error(e); setSigningOut(false); }
+    };
+
     return (
         <>
             <header className="nav-bar">
                 <div className="nav-title">Nastavení</div>
             </header>
             <main className="scroll">
+                <div className="section-title">Účet</div>
+                <div className="glass settings-group">
+                    <div className="account-row">
+                        <div className="account-avatar">{initial}</div>
+                        <div className="account-meta">
+                            <div className="account-email">{user?.email || '—'}</div>
+                            <div className="account-status">
+                                <span className="sync-dot" /> Synchronizováno přes Firebase
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div className="section-title">Brigáda</div>
                 <div className="glass settings-group">
                     <div className="settings-row">
@@ -1721,9 +2138,14 @@ function SettingsScreen({ settings, actions }) {
                     </div>
                     <div className="settings-row">
                         <div className="settings-label" style={{marginLeft: 48}}>Úložiště</div>
-                        <div className="settings-value">Lokálně v prohlížeči</div>
+                        <div className="settings-value">Firebase + lokální cache</div>
                     </div>
                 </div>
+
+                <button className="delete-btn" style={{marginTop: 8}}
+                        onClick={handleSignOut} disabled={signingOut}>
+                    {signingOut ? 'Odhlašování…' : 'Odhlásit se'}
+                </button>
             </main>
         </>
     );
