@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="cs" style="background:#02020a;">
+<html lang="cs" style="background:#0a0618;">
 <head>
     <meta charset="UTF-8">
     <!-- iOS FIX: viewport-fit=cover umožňuje použít env(safe-area-inset-*) -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <!-- iOS FIX: theme-color musí být tmavý, jinak bliká bílá při startu -->
-    <meta name="theme-color" content="#02020a">
+    <meta name="theme-color" content="#0a0618">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <!-- iOS FIX: black-translucent + tmavé HTML pozadí = žádný bílý proužek nahoře/dole -->
@@ -78,7 +78,7 @@
 html, body {
     margin: 0;
     padding: 0;
-    background-color: #02020a;
+    background-color: #0a0618;
     color: var(--text);
     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
     font-size: 16px;
@@ -111,9 +111,9 @@ body {
         radial-gradient(ellipse at 100% 20%, rgba(70, 25, 130, 0.4), transparent 55%),
         radial-gradient(ellipse at 0% 90%, rgba(15, 45, 130, 0.35), transparent 55%),
         radial-gradient(ellipse at 100% 100%, rgba(55, 20, 110, 0.4), transparent 55%),
-        linear-gradient(180deg, #02030a 0%, #03040f 40%, #050313 75%, #02020a 100%);
+        linear-gradient(180deg, #02030a 0%, #03040f 40%, #050313 75%, #0a0618 100%);
     background-attachment: fixed;
-    background-color: #02020a;
+    background-color: #0a0618;
 }
 
 [data-theme="light"] body,
@@ -231,7 +231,7 @@ body::after {
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
-    padding: 8px 20px calc(130px + env(safe-area-inset-bottom));
+    padding: 8px 20px calc(150px + env(safe-area-inset-bottom));
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
     animation: fadeIn 0.35s ease-out;
@@ -505,7 +505,8 @@ body::after {
    ============================================ */
 .tab-bar {
     position: absolute;
-    bottom: max(env(safe-area-inset-bottom), 14px);
+    /* iOS FIX: tab bar zvednutý nad safe-area (home indicator) */
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 40px);
     left: 14px;
     right: 14px;
     display: flex;
@@ -563,7 +564,7 @@ body::after {
    ============================================ */
 .fab {
     position: absolute;
-    bottom: calc(env(safe-area-inset-bottom) + 105px);
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 130px);
     right: 20px;
     width: 58px; height: 58px;
     border-radius: 50%;
