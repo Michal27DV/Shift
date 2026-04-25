@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <!-- iOS FIX: viewport-fit=cover umožňuje použít env(safe-area-inset-*) -->
-   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <!-- iOS FIX: theme-color musí být tmavý, jinak bliká bílá při startu -->
-    <meta name="theme-color" content="#0a0618">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <!-- iOS FIX: theme-color musí být tmavý, jinak bliká bílá při startu.
+         Hodnota odpovídá průměru spodu gradientu, aby se home-indicator pruh nelišil. -->
+    <meta name="theme-color" content="#0c0820">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <!-- iOS FIX: black-translucent + tmavé HTML pozadí = žádný bílý proužek nahoře/dole -->
@@ -90,21 +91,24 @@ html, body {
 
 html {
     height: 100%;
-    /* iOS FIX: dvh = dynamic viewport height, mění se s adresním řádkem */
-    height: 100dvh;
+    /* iOS FIX: lvh = largest viewport height (zachytí i safe-area, home indicator) */
+    min-height: 100dvh;
+    height: 100lvh;
 }
 
 /* iOS FIX: position: fixed na body zabraňuje bouncing scrollu na celé stránce.
-   Skutečný scroll probíhá uvnitř .scroll containerů. */
+   Skutečný scroll probíhá uvnitř .scroll containerů.
+   100lvh + bottom roztažený o safe-area-inset-bottom zajistí, že gradient
+   i grain vyplní i pruh pod home indicatorem (nezůstane tam plochá barva). */
 body {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
-    bottom: 0;
+    bottom: calc(-1 * env(safe-area-inset-bottom, 0px));
     width: 100%;
-    height: 100%;
-    height: 100dvh;
+    height: 100lvh;
+    min-height: 100dvh;
     overflow: hidden;
     /* Pozadí: gradient navržený tak, aby spodní okraj měl stejný tón jako střed
        (žádný tmavý "obdélníček" pod tab barem). Přidaný radiál at 50% 110%
@@ -126,6 +130,71 @@ body[data-theme="light"] {
         radial-gradient(ellipse at 85% 30%, rgba(110, 60, 180, 0.4), transparent 55%),
         radial-gradient(ellipse at 50% 100%, rgba(50, 30, 110, 0.7), transparent 55%),
         linear-gradient(180deg, #15093a 0%, #1e0d4a 35%, #251055 70%, #180838 100%);
+}
+
+/* ============================================
+   CLEAN MODE — čistě černé pozadí, bez gradientu/grainu
+   Karty mírně světlejší aby byly odlišitelné. Akcenty (modrá / fialová)
+   na číslech a důrazech zůstávají.
+   ============================================ */
+html[data-theme="clean"] {
+    background: #000 !important;
+}
+[data-theme="clean"] body {
+    background: #000 !important;
+    background-color: #000 !important;
+}
+[data-theme="clean"] body::before,
+[data-theme="clean"] body::after {
+    display: none !important;
+}
+[data-theme="clean"] .glass,
+[data-theme="clean"] .note-card,
+[data-theme="clean"] .shift-card {
+    background: #0a0a0a;
+    border-color: rgba(255, 255, 255, 0.06);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+[data-theme="clean"] .nav-icon-btn,
+[data-theme="clean"] .tab-bar {
+    background: #0a0a0a;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+[data-theme="clean"] .fab {
+    background: #0a0a0a;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.6), 0 0 16px rgba(122,166,255,0.2);
+}
+[data-theme="clean"] .sheet {
+    background: #0a0a0a;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+[data-theme="clean"] .overlay {
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+[data-theme="clean"] .segmented,
+[data-theme="clean"] .form-group,
+[data-theme="clean"] .empty-icon {
+    background: #0a0a0a;
+    border-color: rgba(255, 255, 255, 0.06);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+[data-theme="clean"] .alert {
+    background: #0a0a0a;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+/* Akcent — barevné výdělkové combined card zůstává, jen sjednotíme s černou */
+[data-theme="clean"] .earnings-combined {
+    background:
+        linear-gradient(135deg, rgba(122, 166, 255, 0.12), rgba(167, 139, 250, 0.08)),
+        #0a0a0a;
+    border-color: rgba(122, 166, 255, 0.2);
 }
 
 /* Grain overlay */
