@@ -1,46 +1,68 @@
 <!DOCTYPE html>
-<html lang="cs">
+<html lang="cs" style="background:#02020a;">
 <head>
     <meta charset="UTF-8">
-     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
-    <meta name="theme-color" content="#0a0618">
+    <!-- iOS FIX: viewport-fit=cover umožňuje použít env(safe-area-inset-*) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <!-- iOS FIX: theme-color musí být tmavý, jinak bliká bílá při startu -->
+    <meta name="theme-color" content="#02020a">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <!-- iOS FIX: black-translucent + tmavé HTML pozadí = žádný bílý proužek nahoře/dole -->
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Shift">
-    <title>Shift</title>
-    <link rel="icon" type="image/svg+xml" href="icon.svg">
+    <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
+    <title>Shift</title>
     <style>
 /* ============================================
    DESIGN SYSTEM — Deep dark + liquid glass
    ============================================ */
-* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+}
 
 :root {
-    --accent: #60a5fa;
-    --accent-2: #818cf8;
-    --accent-glow: rgba(96, 165, 250, 0.45);
+    /* Akcentová modrá / fialová — konzistentní napříč aplikací */
+    --accent: #7aa6ff;
+    --accent-2: #a78bfa;
+    --accent-glow: rgba(122, 166, 255, 0.45);
 
-    --glass-bg: rgba(0, 0, 0, 0.62);
-    --glass-bg-strong: rgba(0, 0, 0, 0.78);
-    --glass-border: rgba(255, 255, 255, 0.14);
+    /* Karty: solidní tmavá (skoro černá) — místo poloprůhledné šedi */
+    --card-bg: rgba(10, 10, 16, 0.92);
+    --card-bg-active: rgba(20, 20, 30, 0.96);
+    --card-border: rgba(255, 255, 255, 0.08);
+    --card-highlight: rgba(255, 255, 255, 0.04);
+
+    /* Glass: pro navbar / tabbar (tam dává blur smysl) */
+    --glass-bg: rgba(8, 8, 14, 0.72);
+    --glass-bg-strong: rgba(8, 8, 14, 0.88);
+    --glass-border: rgba(255, 255, 255, 0.1);
     --glass-highlight: rgba(255, 255, 255, 0.05);
 
-    --text: #f5f3ff;
-    --text-secondary: rgba(245, 243, 255, 0.7);
-    --text-tertiary: rgba(245, 243, 255, 0.42);
+    --text: #ffffff;
+    --text-secondary: rgba(255, 255, 255, 0.62);
+    --text-tertiary: rgba(255, 255, 255, 0.38);
 
     --danger: #f87171;
     --warning: #fbbf24;
     --success: #4ade80;
 
     --radius-sm: 14px;
-    --radius-md: 20px;
-    --radius-lg: 28px;
-    --radius-xl: 36px;
+    --radius-md: 18px;
+    --radius-lg: 24px;
+    --radius-xl: 32px;
 
+    --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.4), 0 1px 0 rgba(255, 255, 255, 0.04) inset;
     --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.5);
     --shadow-float: 0 16px 48px rgba(0, 0, 0, 0.7);
+
+    /* iOS FIX: výška klávesnice — nastavujeme z JS přes visualViewport */
+    --kb-offset: 0px;
 }
 
 /* Light-ish mode is still dark but less deep */
@@ -51,26 +73,47 @@
     --glass-highlight: rgba(255, 255, 255, 0.25);
 }
 
+/* iOS FIX: Tmavé pozadí na html i body zabraňuje bílému proužku
+   při startu PWA i bounce efektu při scrollu */
 html, body {
-    height: 100%;
-    overflow: hidden;
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #02020a;
     color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
     font-size: 16px;
     -webkit-font-smoothing: antialiased;
+    -webkit-text-size-adjust: 100%;
     overscroll-behavior: none;
+    touch-action: manipulation;
 }
 
-/* Deep dark — near-black with purple/blue glow */
+html {
+    height: 100%;
+    /* iOS FIX: dvh = dynamic viewport height, mění se s adresním řádkem */
+    height: 100dvh;
+}
+
+/* iOS FIX: position: fixed na body zabraňuje bouncing scrollu na celé stránce.
+   Skutečný scroll probíhá uvnitř .scroll containerů. */
 body {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    height: 100dvh;
+    overflow: hidden;
     background:
-        radial-gradient(ellipse at 0% 10%, rgba(20, 60, 160, 0.55), transparent 55%),
-        radial-gradient(ellipse at 100% 20%, rgba(70, 25, 130, 0.45), transparent 55%),
-        radial-gradient(ellipse at 0% 90%, rgba(15, 45, 130, 0.4), transparent 55%),
-        radial-gradient(ellipse at 100% 100%, rgba(55, 20, 110, 0.45), transparent 55%),
+        radial-gradient(ellipse at 0% 10%, rgba(20, 60, 160, 0.5), transparent 55%),
+        radial-gradient(ellipse at 100% 20%, rgba(70, 25, 130, 0.4), transparent 55%),
+        radial-gradient(ellipse at 0% 90%, rgba(15, 45, 130, 0.35), transparent 55%),
+        radial-gradient(ellipse at 100% 100%, rgba(55, 20, 110, 0.4), transparent 55%),
         linear-gradient(180deg, #02030a 0%, #03040f 40%, #050313 75%, #02020a 100%);
     background-attachment: fixed;
-    position: relative;
+    background-color: #02020a;
 }
 
 [data-theme="light"] body,
@@ -115,7 +158,7 @@ body::after {
 }
 
 #root {
-    height: 100vh;
+    height: 100%;
     height: 100dvh;
     display: flex;
     flex-direction: column;
@@ -123,17 +166,23 @@ body::after {
     margin: 0 auto;
     position: relative;
     z-index: 2;
+    /* iOS FIX: padding-bottom respektuje výšku klávesnice nastavenou z JS */
+    padding-bottom: var(--kb-offset);
+    transition: padding-bottom 0.18s ease;
 }
 
 /* ============================================
    NAV BAR
    ============================================ */
+/* iOS FIX: safe-area-inset-top zajistí, že titulek nelze pod notch */
 .nav-bar {
-    padding: max(env(safe-area-inset-top), 16px) 20px 10px;
+    padding: max(env(safe-area-inset-top), 16px) 20px 12px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     min-height: 56px;
+    position: relative;
+    z-index: 10;
 }
 
 .nav-title {
@@ -144,6 +193,7 @@ body::after {
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
+    animation: fadeIn 0.4s ease-out;
 }
 
 .nav-icon-btn {
@@ -175,12 +225,17 @@ body::after {
 /* ============================================
    SCROLL CONTENT
    ============================================ */
+/* iOS FIX: -webkit-overflow-scrolling pro plynulý scroll;
+   overscroll-behavior aby se nescrolloval body pod tím */
 .scroll {
     flex: 1;
     overflow-y: auto;
-    padding: 6px 20px 130px;
+    overflow-x: hidden;
+    padding: 8px 20px calc(130px + env(safe-area-inset-bottom));
     -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
     animation: fadeIn 0.35s ease-out;
+    scroll-behavior: smooth;
 }
 
 @keyframes fadeIn {
@@ -188,16 +243,21 @@ body::after {
     to { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.96); }
+    to { opacity: 1; transform: scale(1); }
+}
+
 /* ============================================
-   GLASS BASE
+   CARD BASE — solidní tmavá karta (skoro černá)
+   .glass je teď víc "card" než "glass" — pravý glass blur
+   používáme jen u nav-baru, tab-baru a sheetů.
    ============================================ */
 .glass {
-    background: var(--glass-bg);
-    backdrop-filter: blur(24px) saturate(180%);
-    -webkit-backdrop-filter: blur(24px) saturate(180%);
-    border: 1px solid var(--glass-border);
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
     border-radius: var(--radius-md);
-    box-shadow: var(--shadow-glass);
+    box-shadow: var(--shadow-card);
     position: relative;
     overflow: hidden;
 }
@@ -205,10 +265,9 @@ body::after {
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0;
-    height: 40%;
-    background: linear-gradient(180deg, var(--glass-highlight), transparent);
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--card-highlight), transparent);
     pointer-events: none;
-    border-radius: var(--radius-md) var(--radius-md) 0 0;
 }
 
 /* ============================================
@@ -252,9 +311,14 @@ body::after {
     padding: 18px 20px;
     margin-bottom: 12px;
     cursor: pointer;
-    transition: transform 0.15s, background 0.2s;
+    transition: transform 0.15s ease, background 0.2s ease, border-color 0.2s ease;
+    animation: scaleIn 0.3s ease-out;
 }
-.note-card:active { transform: scale(0.98); background: var(--glass-bg-strong); }
+.note-card:active {
+    transform: scale(0.97);
+    background: var(--card-bg-active);
+    border-color: rgba(255, 255, 255, 0.14);
+}
 .note-card > * { position: relative; z-index: 1; }
 
 .note-title {
@@ -289,9 +353,14 @@ body::after {
     padding: 18px 20px;
     margin-bottom: 12px;
     cursor: pointer;
-    transition: transform 0.15s;
+    transition: transform 0.15s ease, background 0.2s ease, border-color 0.2s ease;
+    animation: scaleIn 0.3s ease-out;
 }
-.shift-card:active { transform: scale(0.98); }
+.shift-card:active {
+    transform: scale(0.97);
+    background: var(--card-bg-active);
+    border-color: rgba(255, 255, 255, 0.14);
+}
 .shift-card > * { position: relative; z-index: 1; }
 
 .shift-head {
@@ -391,7 +460,7 @@ body::after {
     font-weight: 800;
     letter-spacing: -0.03em;
     line-height: 1;
-    background: linear-gradient(135deg, #ffffff 0%, #c4b5fd 100%);
+    background: linear-gradient(135deg, #ffffff 0%, #7aa6ff 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -412,41 +481,43 @@ body::after {
     margin-top: 16px;
     border-radius: var(--radius-lg);
     background:
-        linear-gradient(135deg, rgba(139, 92, 246, 0.25), rgba(99, 102, 241, 0.15)),
-        var(--glass-bg);
-    border: 1px solid rgba(167, 139, 250, 0.3);
-    box-shadow: 0 8px 40px rgba(139, 92, 246, 0.2);
+        linear-gradient(135deg, rgba(122, 166, 255, 0.18), rgba(167, 139, 250, 0.12)),
+        rgba(8, 8, 14, 0.92);
+    border: 1px solid rgba(122, 166, 255, 0.25);
+    box-shadow: 0 8px 32px rgba(122, 166, 255, 0.15), 0 1px 0 rgba(255,255,255,0.05) inset;
     position: relative;
     overflow: hidden;
-    backdrop-filter: blur(24px);
+    animation: scaleIn 0.4s ease-out;
 }
 .earnings-combined::before {
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0;
-    height: 50%;
-    background: linear-gradient(180deg, rgba(255,255,255,0.15), transparent);
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(122, 166, 255, 0.3), transparent);
     pointer-events: none;
-    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
 
 /* ============================================
    FLOATING TAB BAR (4 tabs)
+   iOS FIX: env(safe-area-inset-bottom) zajistí že tab bar
+   nebude přesazený na home indicator
    ============================================ */
 .tab-bar {
     position: absolute;
-    bottom: max(env(safe-area-inset-bottom), 16px);
+    bottom: max(env(safe-area-inset-bottom), 14px);
     left: 14px;
     right: 14px;
     display: flex;
     padding: 6px;
-    background: rgba(0, 0, 0, 0.72);
+    background: rgba(0, 0, 0, 0.78);
     backdrop-filter: blur(30px) saturate(180%);
     -webkit-backdrop-filter: blur(30px) saturate(180%);
     border: 1px solid var(--glass-border);
     border-radius: var(--radius-xl);
     box-shadow: var(--shadow-float);
     z-index: 50;
+    animation: fadeIn 0.4s ease-out;
 }
 .tab-bar::before {
     content: '';
@@ -522,7 +593,7 @@ body::after {
 .overlay {
     position: fixed;
     inset: 0;
-    background: rgba(5, 3, 15, 0.65);
+    background: rgba(2, 2, 10, 0.7);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     z-index: 100;
@@ -530,16 +601,20 @@ body::after {
     align-items: flex-end;
     justify-content: center;
     animation: overlayIn 0.25s ease-out;
+    /* iOS FIX: padding-bottom roste s klávesnicí, takže sheet "vyplave" nad ní */
+    padding-bottom: var(--kb-offset);
+    transition: padding-bottom 0.18s ease;
 }
-.overlay.center { align-items: center; padding: 20px; }
+.overlay.center { align-items: center; padding: 20px; padding-bottom: max(20px, var(--kb-offset)); }
 @keyframes overlayIn { from { opacity: 0; } to { opacity: 1; } }
 
 .sheet {
     width: 100%;
     max-width: 500px;
-    max-height: 92vh;
+    /* iOS FIX: dvh - sheet se nemá přetáhnout přes klávesnici */
+    max-height: 92dvh;
     background:
-        linear-gradient(180deg, rgba(30, 20, 70, 0.9), rgba(15, 10, 40, 0.97));
+        linear-gradient(180deg, rgba(14, 10, 28, 0.96), rgba(6, 4, 16, 0.98));
     backdrop-filter: blur(40px) saturate(180%);
     -webkit-backdrop-filter: blur(40px) saturate(180%);
     border: 1px solid var(--glass-border);
@@ -549,7 +624,7 @@ body::after {
     flex-direction: column;
     animation: sheetUp 0.32s cubic-bezier(0.32, 0.72, 0, 1);
     overflow: hidden;
-    box-shadow: 0 -20px 60px rgba(0,0,0,0.6);
+    box-shadow: 0 -20px 60px rgba(0,0,0,0.7);
     position: relative;
 }
 .sheet::before {
@@ -587,14 +662,16 @@ body::after {
     border-radius: 8px;
     transition: background 0.2s;
 }
-.sheet-btn:active { background: rgba(255,255,255,0.08); }
-.sheet-btn.primary { font-weight: 600; color: #c4b5fd; }
+.sheet-btn:active { background: rgba(255,255,255,0.08); transform: scale(0.96); }
+.sheet-btn.primary { font-weight: 600; color: var(--accent); }
 .sheet-btn:disabled { opacity: 0.35; cursor: default; }
 
 .sheet-body {
     overflow-y: auto;
-    padding: 18px 20px 32px;
+    overflow-x: hidden;
+    padding: 18px 20px max(32px, env(safe-area-inset-bottom));
     -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
 }
 
 /* Form groups inside sheet */
@@ -622,6 +699,8 @@ body::after {
 }
 .form-row:last-child { border-bottom: none; }
 .form-label { font-size: 15px; flex: 1; min-width: 80px; }
+/* iOS FIX: font-size MUSÍ být alespoň 16px, jinak Safari
+   při focusu inputu automaticky zoomuje (anti-zoom hack) */
 .form-input {
     border: none;
     background: none;
@@ -633,9 +712,13 @@ body::after {
     flex: 1;
     outline: none;
     font-variant-numeric: tabular-nums;
+    -webkit-appearance: none;
+    appearance: none;
 }
 .form-input::placeholder { color: var(--text-tertiary); }
 .form-input.text { text-align: left; }
+.form-input:focus { color: var(--accent); }
+
 .form-textarea {
     width: 100%;
     min-height: 160px;
@@ -648,16 +731,25 @@ body::after {
     padding: 14px 16px;
     outline: none;
     line-height: 1.5;
+    -webkit-appearance: none;
+    appearance: none;
 }
 .form-textarea::placeholder { color: var(--text-tertiary); }
 
-input[type="date"], input[type="time"] {
+/* iOS FIX: 16px taky tady jinak zoomuje */
+input[type="date"], input[type="time"], input[type="number"] {
     color: var(--text);
     color-scheme: dark;
     background: none;
     border: none;
     font-family: inherit;
-    font-size: 15px;
+    font-size: 16px;
+    -webkit-appearance: none;
+}
+
+/* Active state na form-row pro feedback */
+.form-row:focus-within {
+    background: rgba(122, 166, 255, 0.06);
 }
 
 .error-box {
@@ -754,29 +846,37 @@ input[type="date"], input[type="time"] {
 .settings-icon {
     width: 34px; height: 34px;
     border-radius: 10px;
-    background: linear-gradient(135deg, #8b5cf6, #6366f1);
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.35);
+    box-shadow: 0 4px 12px rgba(122, 166, 255, 0.3);
 }
 .settings-icon svg { width: 18px; height: 18px; color: white; }
 .settings-label { flex: 1; font-size: 15px; font-weight: 500; }
 .settings-value { font-size: 14px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+/* iOS FIX: font-size 16px aby Safari nezoomoval při focusu */
 .settings-input {
     width: 110px;
     padding: 8px 12px;
-    font-size: 15px;
+    font-size: 16px;
     font-weight: 600;
     font-family: inherit;
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--card-border);
     border-radius: 10px;
     color: var(--text);
     text-align: right;
     outline: none;
     font-variant-numeric: tabular-nums;
+    -webkit-appearance: none;
+    appearance: none;
+    transition: border-color 0.2s, background 0.2s;
+}
+.settings-input:focus {
+    border-color: var(--accent);
+    background: rgba(122, 166, 255, 0.08);
 }
 
 .theme-select {
@@ -801,10 +901,10 @@ input[type="date"], input[type="time"] {
     transition: all 0.2s;
 }
 .theme-option.active {
-    background: linear-gradient(135deg, rgba(167, 139, 250, 0.4), rgba(99, 102, 241, 0.25));
+    background: linear-gradient(135deg, rgba(122, 166, 255, 0.35), rgba(167, 139, 250, 0.22));
     color: var(--text);
     font-weight: 600;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.18);
 }
 
 .section-title {
@@ -820,6 +920,64 @@ input[type="date"], input[type="time"] {
 </head>
 <body>
     <div id="root"></div>
+
+    <script>
+    /* ============================================
+       iOS PWA KEYBOARD FIX
+       ============================================
+       Když se otevře mobilní klávesnice na iOS, nedefaultně se layout
+       neposune nahoru a inputy zůstávají schované. Tady to řešíme
+       přes visualViewport API:
+       - Při fokusu inputu spočítáme rozdíl mezi window.innerHeight a
+         visualViewport.height = výška klávesnice
+       - Tu pak nastavíme do CSS proměnné --kb-offset, kterou používá
+         #root i .overlay (sheet vyplave nad klávesnici)
+       - Po krátké pauze zavoláme scrollIntoView, aby aktivní pole
+         bylo vždy viditelné
+    */
+    (function () {
+        const setKbOffset = (px) => {
+            document.documentElement.style.setProperty('--kb-offset', px + 'px');
+        };
+
+        function handleResize() {
+            if (!window.visualViewport) return;
+            const offset = Math.max(0, window.innerHeight - window.visualViewport.height - window.visualViewport.offsetTop);
+            // tolerance ~50px (Safari address bar pohyb)
+            setKbOffset(offset > 50 ? offset : 0);
+        }
+
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', handleResize);
+            window.visualViewport.addEventListener('scroll', handleResize);
+        }
+
+        // scrollIntoView když se zaměří input/textarea
+        document.addEventListener('focusin', (e) => {
+            const t = e.target;
+            if (!t || !(t.matches('input, textarea, select, [contenteditable]'))) return;
+            // čekáme až se rozjede animace klávesnice
+            setTimeout(() => {
+                try {
+                    t.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                } catch (_) {}
+            }, 280);
+        });
+
+        // Reset proměnné při blur (klávesnice se zavře)
+        document.addEventListener('focusout', () => {
+            setTimeout(handleResize, 100);
+        });
+
+        // Zabránit double-tap zoom na iOS
+        let lastTouch = 0;
+        document.addEventListener('touchend', (e) => {
+            const now = Date.now();
+            if (now - lastTouch <= 300) e.preventDefault();
+            lastTouch = now;
+        }, { passive: false });
+    })();
+    </script>
 
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -1345,7 +1503,7 @@ function ShiftForm({ mode, shift, defaultRate, onClose, onSave, onDelete }) {
                             </div>
                             <div className="form-row">
                                 <div className="form-label">Výdělek</div>
-                                <div style={{fontVariantNumeric: 'tabular-nums', fontWeight: 700, color: '#c4b5fd'}}>
+                                <div style={{fontVariantNumeric: 'tabular-nums', fontWeight: 700, color: 'var(--accent)'}}>
                                     {isUpcoming && '≈ '}{fmtCZK(calc.earnings)}
                                 </div>
                             </div>

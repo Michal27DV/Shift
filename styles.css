@@ -3,7 +3,6 @@
 :root {
     --bg: #f2f2f7;
     --surface: #ffffff;
-    
     --surface-2: #f9f9fb;
     --border: #e5e5ea;
     --text: #000000;
@@ -33,20 +32,18 @@
 }
 
 html, body {
-    height: 100dvh; /* Změněno na dvh pro správnou výšku přes celou obrazovku */
-    width: 100vw;
+    height: 100%;
     overflow: hidden;
-    overscroll-behavior: none; /* Zabrání "gumování" stránky nahoru/dolů */
     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
     background: var(--bg);
     color: var(--text);
     font-size: 16px;
     -webkit-font-smoothing: antialiased;
-    position: fixed
 }
 
 #root {
-    height: 100dvh; /* Změněno z 100% na dynamickou výšku */
+    height: 100vh;
+    height: 100dvh;
     display: flex;
     flex-direction: column;
     max-width: 500px;
@@ -307,8 +304,7 @@ html, body {
     z-index: 100;
     display: flex;
     align-items: flex-end;
-    flex-direction: column;
-    justify-content: flex-end;
+    justify-content: center;
     animation: fadeIn 0.2s;
 }
 .overlay.center { align-items: center; }
@@ -322,14 +318,12 @@ html, body {
     background: var(--bg);
     width: 100%;
     max-width: 500px;
-    max-height: calc(100dvh - 20px); /* Změněno na dvh! Reaguje na klávesnici */
+    max-height: 92vh;
     border-radius: 14px 14px 0 0;
     display: flex;
     flex-direction: column;
     animation: slideUp 0.25s cubic-bezier(0.32, 0.72, 0, 1);
     overflow: hidden;
-    position: relative; 
-    margin-bottom: 0;
 }
 @keyframes slideUp {
     from { transform: translateY(100%); }
@@ -348,8 +342,7 @@ html, body {
 
 .sheet-body {
     overflow-y: auto;
-    /* Přidaný spodní padding kvůli iPhonům a aby obsah nebyl přilepený úplně dole u klávesnice */
-    padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
+    padding: 16px;
     -webkit-overflow-scrolling: touch;
 }
 
