@@ -137,64 +137,263 @@ body[data-theme="light"] {
    Karty mírně světlejší aby byly odlišitelné. Akcenty (modrá / fialová)
    na číslech a důrazech zůstávají.
    ============================================ */
-html[data-theme="clean"] {
+html[data-theme="disco"] {
     background: #000 !important;
 }
-[data-theme="clean"] body {
+/* Komentář: 'clean' bylo přejmenováno na 'disco' (uživatelská preference) */
+[data-theme="disco"] body {
     background: #000 !important;
     background-color: #000 !important;
 }
-[data-theme="clean"] body::before,
-[data-theme="clean"] body::after {
+[data-theme="disco"] body::before,
+[data-theme="disco"] body::after {
     display: none !important;
 }
-[data-theme="clean"] .glass,
-[data-theme="clean"] .note-card,
-[data-theme="clean"] .shift-card {
+[data-theme="disco"] .glass,
+[data-theme="disco"] .note-card,
+[data-theme="disco"] .shift-card {
     background: #0a0a0a;
     border-color: rgba(255, 255, 255, 0.06);
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
 }
-[data-theme="clean"] .nav-icon-btn,
-[data-theme="clean"] .tab-bar {
+[data-theme="disco"] .nav-icon-btn,
+[data-theme="disco"] .tab-bar {
     background: #0a0a0a;
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
 }
-[data-theme="clean"] .fab {
+[data-theme="disco"] .fab {
     background: #0a0a0a;
     box-shadow: 0 8px 24px rgba(0,0,0,0.6), 0 0 16px rgba(122,166,255,0.2);
 }
-[data-theme="clean"] .sheet {
+[data-theme="disco"] .sheet {
     background: #0a0a0a;
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
 }
-[data-theme="clean"] .overlay {
+[data-theme="disco"] .overlay {
     background: rgba(0, 0, 0, 0.75);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
 }
-[data-theme="clean"] .segmented,
-[data-theme="clean"] .form-group,
-[data-theme="clean"] .empty-icon {
+[data-theme="disco"] .segmented,
+[data-theme="disco"] .form-group,
+[data-theme="disco"] .empty-icon {
     background: #0a0a0a;
     border-color: rgba(255, 255, 255, 0.06);
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
 }
-[data-theme="clean"] .alert {
+[data-theme="disco"] .alert {
     background: #0a0a0a;
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
 }
 /* Akcent — barevné výdělkové combined card zůstává, jen sjednotíme s černou */
-[data-theme="clean"] .earnings-combined {
+[data-theme="disco"] .earnings-combined {
     background:
         linear-gradient(135deg, rgba(122, 166, 255, 0.12), rgba(167, 139, 250, 0.08)),
         #0a0a0a;
     border-color: rgba(122, 166, 255, 0.2);
+}
+
+/* ============================================
+   DISCO MODE — vibrant barevná čísla s glow
+   <input> elementy nepodporují background-clip:text → tam použijeme
+   solid color (a hlavička s color-scheme: dark pro number stepper).
+   Pro <div>/<span>/<button> používáme gradient + clip-text + glow.
+   ============================================ */
+
+/* Disco-tone helper class: aplikuje gradient na text + glow */
+[data-theme="disco"] .tone-earned,
+[data-theme="disco"] .tone-expected,
+[data-theme="disco"] .tone-combined,
+[data-theme="disco"] .tone-lifetime,
+[data-theme="disco"] .tone-rose,
+[data-theme="disco"] .tone-cyan {
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    color: transparent !important;
+}
+
+[data-theme="disco"] .tone-earned {
+    background-image: linear-gradient(135deg, #86efac 0%, #10b981 50%, #059669 100%) !important;
+    text-shadow: 0 0 18px rgba(16, 185, 129, 0.45);
+}
+[data-theme="disco"] .tone-expected {
+    background-image: linear-gradient(135deg, #67e8f9 0%, #22d3ee 50%, #0891b2 100%) !important;
+    text-shadow: 0 0 18px rgba(34, 211, 238, 0.5);
+}
+[data-theme="disco"] .tone-combined {
+    background-image: linear-gradient(135deg, #d8b4fe 0%, #a855f7 50%, #d946ef 100%) !important;
+    text-shadow: 0 0 18px rgba(217, 70, 239, 0.45);
+}
+[data-theme="disco"] .tone-lifetime {
+    background-image: linear-gradient(135deg, #fde047 0%, #f59e0b 50%, #f97316 100%) !important;
+    text-shadow: 0 0 18px rgba(245, 158, 11, 0.5);
+}
+[data-theme="disco"] .tone-rose {
+    background-image: linear-gradient(135deg, #fda4af 0%, #f43f5e 50%, #e11d48 100%) !important;
+    text-shadow: 0 0 18px rgba(244, 63, 94, 0.45);
+}
+[data-theme="disco"] .tone-cyan {
+    background-image: linear-gradient(135deg, #99f6e4 0%, #14b8a6 50%, #0d9488 100%) !important;
+    text-shadow: 0 0 18px rgba(20, 184, 166, 0.45);
+}
+
+/* INPUT ELEMENTY — bg-clip:text na <input> nefunguje napříč prohlížeči,
+   používáme solid color (tone z palety) */
+[data-theme="disco"] .wage-input {
+    color: #fb7185 !important;        /* rose-400 */
+    background: none !important;
+    -webkit-text-fill-color: #fb7185 !important;
+}
+[data-theme="disco"] .settings-input {
+    color: #fde047 !important;        /* yellow-300 */
+    -webkit-text-fill-color: #fde047 !important;
+    border-color: rgba(253, 224, 71, 0.3) !important;
+}
+[data-theme="disco"] .form-input {
+    color: #c4b5fd !important;        /* violet-300 */
+    -webkit-text-fill-color: #c4b5fd !important;
+}
+[data-theme="disco"] .event-title-input {
+    color: #67e8f9 !important;        /* cyan-300 */
+    -webkit-text-fill-color: #67e8f9 !important;
+}
+
+/* WAGE SUMMARY — strong zvýraznění (rose) */
+[data-theme="disco"] .wage-summary strong {
+    background-image: linear-gradient(135deg, #fda4af 0%, #f43f5e 50%, #e11d48 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    text-shadow: 0 0 10px rgba(244, 63, 94, 0.4);
+}
+
+/* TIME pily — modrá */
+[data-theme="disco"] .time-pill-value,
+[data-theme="disco"] .time-big {
+    background-image: linear-gradient(135deg, #67e8f9 0%, #3b82f6 50%, #6366f1 100%) !important;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    text-shadow: 0 0 14px rgba(99, 102, 241, 0.4);
+}
+
+/* TRVÁNÍ pill */
+[data-theme="disco"] .time-range-duration {
+    color: #d8b4fe !important;
+    -webkit-text-fill-color: #d8b4fe !important;
+    background: rgba(168, 85, 247, 0.15) !important;
+    border-color: rgba(168, 85, 247, 0.35) !important;
+    box-shadow: 0 0 12px rgba(168, 85, 247, 0.25);
+}
+
+/* CAL title (název měsíce) */
+[data-theme="disco"] .cal-title {
+    background-image: linear-gradient(135deg, #f0abfc 0%, #c084fc 50%, #a855f7 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+}
+
+/* MONTH switcher — měsíc jméno */
+[data-theme="disco"] .month-switcher-name {
+    background-image: linear-gradient(135deg, #f0abfc 0%, #c084fc 50%, #a855f7 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+}
+[data-theme="disco"] .month-switcher-badge {
+    background: rgba(244, 114, 182, 0.15) !important;
+    border-color: rgba(244, 114, 182, 0.4) !important;
+    color: #fda4af !important;
+}
+
+/* NAV title (Kalendář, Směny, Výdělek, Nastavení) */
+[data-theme="disco"] .nav-title {
+    background-image: linear-gradient(135deg, #67e8f9 0%, #c084fc 50%, #fda4af 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+}
+
+/* AUTH screen title */
+[data-theme="disco"] .auth-title {
+    background-image: linear-gradient(135deg, #67e8f9 0%, #c084fc 50%, #fda4af 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+}
+
+/* Account avatar — zlatý gradient + glow */
+[data-theme="disco"] .account-avatar {
+    background: linear-gradient(135deg, #fde047, #f59e0b);
+    box-shadow: 0 4px 16px rgba(245, 158, 11, 0.5);
+}
+
+/* Cal cell selected — fialovo-růžová */
+[data-theme="disco"] .cal-cell.selected {
+    background: linear-gradient(135deg, rgba(217, 70, 239, 0.4), rgba(168, 85, 247, 0.25));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 0 16px rgba(217, 70, 239, 0.3);
+}
+[data-theme="disco"] .cal-cell.today .cal-num {
+    color: #67e8f9 !important;
+    -webkit-text-fill-color: #67e8f9 !important;
+}
+
+/* Tab item active — duhový border */
+[data-theme="disco"] .tab-item.active {
+    background: linear-gradient(135deg, rgba(103, 232, 249, 0.18), rgba(217, 70, 239, 0.18));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 0 14px rgba(168, 85, 247, 0.3);
+}
+
+/* FAB glow */
+[data-theme="disco"] .fab {
+    box-shadow: 0 8px 24px rgba(0,0,0,0.6),
+                0 0 18px rgba(217, 70, 239, 0.45),
+                inset 0 1px 0 rgba(255,255,255,0.2);
+}
+
+/* Auth primary button */
+[data-theme="disco"] .auth-primary {
+    background: linear-gradient(135deg, #c084fc, #f472b6, #fb7185);
+    box-shadow: 0 8px 28px rgba(217, 70, 239, 0.5), inset 0 1px 0 rgba(255,255,255,0.25);
+}
+
+/* Splash spinner — duhový */
+[data-theme="disco"] .splash-spinner {
+    border-top-color: #c084fc;
+    border-right-color: rgba(103, 232, 249, 0.3);
+}
+
+/* DRS slider thumb v disco — pink/cyan */
+[data-theme="disco"] .drs-fill {
+    background: linear-gradient(90deg, #67e8f9, #c084fc, #f472b6);
+    box-shadow: 0 0 16px rgba(217, 70, 239, 0.5);
+}
+[data-theme="disco"] .drs-input.drs-start::-webkit-slider-thumb {
+    border-color: #67e8f9;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5), 0 0 12px rgba(103, 232, 249, 0.5);
+}
+[data-theme="disco"] .drs-input.drs-end::-webkit-slider-thumb {
+    border-color: #f472b6;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5), 0 0 12px rgba(244, 114, 182, 0.5);
+}
+
+/* Theme-option active v disco — duhový */
+[data-theme="disco"] .theme-option.active {
+    background: linear-gradient(135deg, rgba(103, 232, 249, 0.25), rgba(217, 70, 239, 0.25), rgba(244, 114, 182, 0.25));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.25), 0 0 12px rgba(217, 70, 239, 0.3);
 }
 
 /* Grain overlay */
@@ -1396,6 +1595,450 @@ input[type="date"], input[type="time"], input[type="number"] {
     transform: translateX(16px);
 }
 
+/* ============================================
+   EVENT FORM — moderní touch-friendly UI
+   ============================================ */
+.event-title-input {
+    width: 100%;
+    padding: 16px 18px;
+    margin-bottom: 14px;
+    border: 1px solid var(--card-border);
+    background: var(--card-bg);
+    border-radius: var(--radius-md);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+    transition: border-color 0.2s, background 0.2s;
+}
+.event-title-input::placeholder {
+    color: var(--text-tertiary);
+    font-weight: 500;
+}
+.event-title-input:focus {
+    border-color: rgba(122, 166, 255, 0.4);
+    background: var(--card-bg-active);
+}
+
+.big-picker {
+    width: 100%;
+    padding: 16px 18px;
+    margin-bottom: 14px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    color: var(--text);
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    position: relative;
+    transition: transform 0.12s, background 0.2s;
+}
+.big-picker:active { transform: scale(0.98); background: var(--card-bg-active); }
+.big-picker-label {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-tertiary);
+}
+.big-picker-value {
+    font-size: 17px;
+    font-weight: 600;
+    text-transform: capitalize;
+    letter-spacing: -0.01em;
+}
+
+.time-range-card {
+    padding: 16px 16px 14px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    margin-bottom: 14px;
+}
+
+.time-single {
+    text-align: center;
+    align-items: center;
+}
+.time-big {
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+    background: linear-gradient(135deg, #ffffff 0%, #c4d8ff 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.time-range {
+    display: flex;
+    align-items: stretch;
+    gap: 10px;
+    margin-bottom: 4px;
+}
+.time-pill {
+    flex: 1;
+    padding: 8px 4px;
+    background: none;
+    border: none;
+    color: var(--text);
+    font-family: inherit;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    text-align: center;
+    position: relative;
+    transition: transform 0.12s;
+}
+.time-pill:active { transform: scale(0.96); }
+.time-pill-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-tertiary);
+}
+.time-pill-value {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    background: linear-gradient(135deg, #ffffff 0%, #c4d8ff 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.time-range-arrow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    min-width: 70px;
+    padding-top: 18px;
+}
+.time-range-duration {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+    padding: 4px 10px;
+    background: rgba(122, 166, 255, 0.12);
+    border: 1px solid rgba(122, 166, 255, 0.25);
+    border-radius: 100px;
+    white-space: nowrap;
+}
+
+/* ============================================
+   DUAL RANGE SLIDER (drs)
+   ============================================ */
+.drs {
+    position: relative;
+    height: 40px;
+    margin: 4px 4px 2px;
+}
+.drs-track {
+    position: absolute;
+    top: 50%;
+    left: 0; right: 0;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 3px;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+.drs-fill {
+    position: absolute;
+    top: 50%;
+    height: 6px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    border-radius: 3px;
+    transform: translateY(-50%);
+    pointer-events: none;
+    box-shadow: 0 0 12px rgba(122, 166, 255, 0.4);
+}
+.drs-input {
+    -webkit-appearance: none;
+    appearance: none;
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 40px;
+    background: none;
+    pointer-events: none;
+    margin: 0;
+    padding: 0;
+    outline: none;
+}
+.drs-input::-webkit-slider-runnable-track {
+    background: transparent;
+    border: none;
+    height: 40px;
+}
+.drs-input::-moz-range-track {
+    background: transparent;
+    border: none;
+}
+.drs-input::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    pointer-events: auto;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #fff;
+    border: 3px solid var(--accent);
+    cursor: grab;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), 0 0 0 4px rgba(122,166,255,0.15);
+    margin-top: 0; /* Chrome already centers via track height */
+    transition: transform 0.12s, box-shadow 0.2s;
+    position: relative;
+    z-index: 2;
+}
+.drs-input::-webkit-slider-thumb:active {
+    transform: scale(1.15);
+    cursor: grabbing;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6), 0 0 0 8px rgba(122,166,255,0.25);
+}
+.drs-input::-moz-range-thumb {
+    pointer-events: auto;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #fff;
+    border: 3px solid var(--accent);
+    cursor: grab;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+.drs-end::-webkit-slider-thumb {
+    border-color: var(--accent-2);
+}
+.drs-end::-moz-range-thumb {
+    border-color: var(--accent-2);
+}
+
+.drs-axis {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 6px;
+    margin-top: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.04em;
+}
+
+.chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+.chip {
+    padding: 8px 14px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 100px;
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+    transition: transform 0.12s, background 0.2s, border-color 0.2s, color 0.2s;
+    -webkit-appearance: none;
+}
+.chip:active { transform: scale(0.95); }
+.chip.active {
+    background: linear-gradient(135deg, rgba(122,166,255,0.3), rgba(167,139,250,0.2));
+    color: #fff;
+    border-color: rgba(122, 166, 255, 0.4);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.15);
+}
+
+.wage-box {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 14px 18px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    margin-bottom: 8px;
+}
+.wage-input {
+    flex: 1;
+    border: none;
+    background: none;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+    min-width: 0;
+}
+.wage-input::-webkit-outer-spin-button,
+.wage-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.wage-suffix {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+.wage-summary {
+    text-align: right;
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+    padding: 0 6px;
+}
+.wage-summary strong {
+    color: var(--accent);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.event-textarea {
+    width: 100%;
+    min-height: 80px;
+    padding: 14px 16px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 16px;
+    line-height: 1.5;
+    resize: none;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+    transition: border-color 0.2s, background 0.2s;
+}
+.event-textarea::placeholder { color: var(--text-tertiary); }
+.event-textarea:focus {
+    border-color: rgba(122, 166, 255, 0.4);
+    background: var(--card-bg-active);
+}
+
+/* ============================================
+   EARNINGS — měsíční přepínač + celkem panel
+   ============================================ */
+.month-switcher {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 6px 4px 16px;
+}
+.month-switcher-label {
+    flex: 1;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    align-items: center;
+}
+.month-switcher-name {
+    font-size: 17px;
+    font-weight: 700;
+    text-transform: capitalize;
+    letter-spacing: -0.01em;
+}
+.month-switcher-badge {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+    padding: 2px 8px;
+    background: rgba(122, 166, 255, 0.12);
+    border: 1px solid rgba(122, 166, 255, 0.25);
+    border-radius: 100px;
+}
+
+.all-time-toggle {
+    width: 100%;
+    margin-top: 18px;
+    padding: 16px 18px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    color: var(--text);
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transition: transform 0.12s, background 0.2s, border-color 0.2s;
+}
+.all-time-toggle:active { transform: scale(0.98); background: var(--card-bg-active); }
+.all-time-toggle.open {
+    border-color: rgba(122, 166, 255, 0.35);
+    background: linear-gradient(135deg, rgba(122,166,255,0.06), rgba(167,139,250,0.04)), var(--card-bg);
+}
+.all-time-toggle-icon {
+    width: 32px; height: 32px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.05);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+    transition: transform 0.25s ease, background 0.2s, color 0.2s;
+}
+.all-time-toggle.open .all-time-toggle-icon {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #fff;
+    transform: rotate(90deg);
+}
+.all-time-toggle-label {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+.all-time-toggle-title {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+}
+.all-time-toggle-sub {
+    font-size: 12px;
+    color: var(--text-tertiary);
+}
+.all-time-toggle-value {
+    font-size: 16px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    background: linear-gradient(135deg, #ffffff 0%, #7aa6ff 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    flex-shrink: 0;
+}
+
+.all-time-panel {
+    margin-top: 12px;
+    animation: fadeIn 0.3s ease-out;
+}
+
 /* Splash spinner */
 .splash-spinner {
     width: 36px; height: 36px;
@@ -1696,7 +2339,8 @@ function useTheme(pref) {
     useEffect(() => {
         const apply = () => {
             let theme;
-            if (pref === 'clean') theme = 'clean';
+            // 'clean' je legacy alias pro 'disco' (kvůli starým uloženým hodnotám)
+            if (pref === 'disco' || pref === 'clean') theme = 'disco';
             else if (pref === 'light') theme = 'light';
             else if (pref === 'dark') theme = 'dark';
             else theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
@@ -1838,6 +2482,9 @@ function App() {
     return <AppShell user={user} />;
 }
 
+// Migrace: pokud má uživatel uložený starý tab 'notes', přemapujeme na 'calendar'
+const migrateTab = (t) => t === 'notes' ? 'calendar' : t;
+
 function SplashScreen() {
     return (
         <div style={{
@@ -1851,7 +2498,7 @@ function SplashScreen() {
 
 function AppShell({ user }) {
     const [state, setState, hydrated] = useUserState(user.uid);
-    const [tab, setTab] = useState('notes');
+    const [tab, setTab] = useState('calendar');
 
     useTheme(state.settings.theme);
 
@@ -1951,7 +2598,7 @@ function AppShell({ user }) {
 
     return (
         <>
-            {tab === 'notes' && <NotesScreen notes={state.notes} events={state.events} defaultRate={state.settings.hourlyRate} actions={actions} />}
+            {tab === 'calendar' && <CalendarScreen events={state.events} defaultRate={state.settings.hourlyRate} actions={actions} />}
             {tab === 'shifts' && <ShiftsScreen shifts={state.shifts} defaultRate={state.settings.hourlyRate} actions={actions} />}
             {tab === 'earnings' && <EarningsScreen shifts={state.shifts} />}
             {tab === 'settings' && <SettingsScreen settings={state.settings} actions={actions} user={user} />}
@@ -1965,7 +2612,7 @@ function AppShell({ user }) {
    ============================================ */
 function TabBar({ current, onChange }) {
     const tabs = [
-        { id: 'notes', label: 'Poznámky', icon: 'notes' },
+        { id: 'calendar', label: 'Kalendář', icon: 'calendar' },
         { id: 'shifts', label: 'Směny', icon: 'shifts' },
         { id: 'earnings', label: 'Výdělek', icon: 'wage' },
         { id: 'settings', label: 'Nastavení', icon: 'settings' }
@@ -2118,7 +2765,7 @@ function buildMonthGrid(year, month) {
     return cells;
 }
 
-function CalendarScreen({ events, defaultRate, actions, onClose }) {
+function CalendarScreen({ events, defaultRate, actions }) {
     const [cursor, setCursor] = useState(() => {
         const t = new Date();
         return { year: t.getFullYear(), month: t.getMonth() };
@@ -2129,7 +2776,7 @@ function CalendarScreen({ events, defaultRate, actions, onClose }) {
     const cells = useMemo(() => buildMonthGrid(cursor.year, cursor.month), [cursor]);
     const todayIso = isoDay(new Date());
 
-    // Mapa: ISO den -> počet eventů
+    // Mapa: ISO den -> seznam eventů
     const eventsByDay = useMemo(() => {
         const map = {};
         events.forEach(e => {
@@ -2158,83 +2805,82 @@ function CalendarScreen({ events, defaultRate, actions, onClose }) {
     };
 
     return (
-        <div className="overlay" onClick={onClose}>
-            <div className="sheet calendar-sheet" onClick={e => e.stopPropagation()}>
-                <div className="sheet-header">
-                    <button className="sheet-btn" onClick={onClose}>Zavřít</button>
-                    <div className="sheet-title">Kalendář</div>
-                    <button className="sheet-btn primary" onClick={goToday}>Dnes</button>
+        <>
+            <header className="nav-bar">
+                <div className="nav-title">Kalendář</div>
+                <button className="nav-icon-btn" onClick={goToday} aria-label="Dnes" title="Skoč na dnešek">
+                    <Icon name="calendar" size={20} />
+                </button>
+            </header>
+            <main className="scroll">
+                <div className="cal-header">
+                    <button className="cal-nav" onClick={goPrev} aria-label="Předchozí měsíc">
+                        <Icon name="chevronLeft" size={20} />
+                    </button>
+                    <div className="cal-title">
+                        {MONTH_NAMES[cursor.month]} {cursor.year}
+                    </div>
+                    <button className="cal-nav" onClick={goNext} aria-label="Další měsíc">
+                        <Icon name="chevronRight" size={20} />
+                    </button>
                 </div>
-                <div className="sheet-body" style={{padding: '14px 16px 24px'}}>
-                    <div className="cal-header">
-                        <button className="cal-nav" onClick={goPrev} aria-label="Předchozí měsíc">
-                            <Icon name="chevronLeft" size={20} />
-                        </button>
-                        <div className="cal-title">
-                            {MONTH_NAMES[cursor.month]} {cursor.year}
-                        </div>
-                        <button className="cal-nav" onClick={goNext} aria-label="Další měsíc">
-                            <Icon name="chevronRight" size={20} />
-                        </button>
+
+                <div className="cal-grid">
+                    {DAY_NAMES.map(d => <div key={d} className="cal-dayname">{d}</div>)}
+                    {cells.map((d, i) => {
+                        const iso = isoDay(d);
+                        const inMonth = d.getMonth() === cursor.month;
+                        const isToday = iso === todayIso;
+                        const isSelected = iso === selectedDay;
+                        const evs = eventsByDay[iso] || [];
+                        const hasShift = evs.some(e => e.shiftId);
+                        return (
+                            <button key={i}
+                                    className={'cal-cell'
+                                        + (inMonth ? '' : ' out')
+                                        + (isToday ? ' today' : '')
+                                        + (isSelected ? ' selected' : '')}
+                                    onClick={() => setSelectedDay(iso)}>
+                                <span className="cal-num">{d.getDate()}</span>
+                                {evs.length > 0 && (
+                                    <span className={'cal-dots' + (hasShift ? ' has-shift' : '')}>
+                                        {evs.slice(0, 3).map((_, j) => <span key={j} className="cal-dot" />)}
+                                    </span>
+                                )}
+                            </button>
+                        );
+                    })}
+                </div>
+
+                <div className="cal-day-section">
+                    <div className="cal-day-title">
+                        {(() => {
+                            const d = new Date(selectedDay + 'T00:00');
+                            return d.toLocaleDateString('cs-CZ', { weekday: 'long', day: 'numeric', month: 'long' });
+                        })()}
                     </div>
 
-                    <div className="cal-grid">
-                        {DAY_NAMES.map(d => <div key={d} className="cal-dayname">{d}</div>)}
-                        {cells.map((d, i) => {
-                            const iso = isoDay(d);
-                            const inMonth = d.getMonth() === cursor.month;
-                            const isToday = iso === todayIso;
-                            const isSelected = iso === selectedDay;
-                            const evs = eventsByDay[iso] || [];
-                            const hasShift = evs.some(e => e.shiftId);
-                            return (
-                                <button key={i}
-                                        className={'cal-cell'
-                                            + (inMonth ? '' : ' out')
-                                            + (isToday ? ' today' : '')
-                                            + (isSelected ? ' selected' : '')}
-                                        onClick={() => setSelectedDay(iso)}>
-                                    <span className="cal-num">{d.getDate()}</span>
-                                    {evs.length > 0 && (
-                                        <span className={'cal-dots' + (hasShift ? ' has-shift' : '')}>
-                                            {evs.slice(0, 3).map((_, j) => <span key={j} className="cal-dot" />)}
-                                        </span>
-                                    )}
-                                </button>
-                            );
-                        })}
-                    </div>
-
-                    <div className="cal-day-section">
-                        <div className="cal-day-title">
-                            {(() => {
-                                const d = new Date(selectedDay + 'T00:00');
-                                return d.toLocaleDateString('cs-CZ', { weekday: 'long', day: 'numeric', month: 'long' });
-                            })()}
-                        </div>
-
-                        {dayEvents.length === 0 ? (
-                            <div className="cal-empty">Žádné aktivity. Klikni na + pro přidání.</div>
-                        ) : (
-                            dayEvents.map(ev => (
-                                <div key={ev.id} className="glass cal-event"
-                                     onClick={() => setEditor({ mode: 'edit', event: ev })}>
-                                    <div className="cal-event-time">
-                                        {ev.time || '—'}
-                                        {ev.shiftId && <span className="cal-event-tag"><Icon name="briefcase" size={11} /> Brigáda</span>}
-                                    </div>
-                                    <div className="cal-event-title">{ev.title || 'Bez názvu'}</div>
-                                    {ev.description && <div className="cal-event-desc">{ev.description}</div>}
+                    {dayEvents.length === 0 ? (
+                        <div className="cal-empty">Žádné aktivity. Klikni na + pro přidání.</div>
+                    ) : (
+                        dayEvents.map(ev => (
+                            <div key={ev.id} className="glass cal-event"
+                                 onClick={() => setEditor({ mode: 'edit', event: ev })}>
+                                <div className="cal-event-time">
+                                    {ev.time || '—'}
+                                    {ev.shiftId && <span className="cal-event-tag"><Icon name="briefcase" size={11} /> Brigáda</span>}
                                 </div>
-                            ))
-                        )}
-
-                        <button className="cal-add-btn" onClick={() => setEditor({ mode: 'create' })}>
-                            <Icon name="plus" size={18} /> Přidat aktivitu
-                        </button>
-                    </div>
+                                <div className="cal-event-title">{ev.title || 'Bez názvu'}</div>
+                                {ev.description && <div className="cal-event-desc">{ev.description}</div>}
+                            </div>
+                        ))
+                    )}
                 </div>
-            </div>
+            </main>
+
+            <button className="fab" onClick={() => setEditor({ mode: 'create' })} aria-label="Přidat aktivitu">
+                <Icon name="plus" size={26} />
+            </button>
 
             {editor && (
                 <EventForm mode={editor.mode} event={editor.event} initialDate={selectedDay}
@@ -2247,23 +2893,135 @@ function CalendarScreen({ events, defaultRate, actions, onClose }) {
                            }}
                            onDelete={() => { actions.deleteEvent(editor.event.id); setEditor(null); }} />
             )}
-        </div>
+        </>
     );
 }
 
 /* ============================================
    EVENT FORM — vytvoření/editace aktivity, propojení s brigádou
    ============================================ */
+// Time helpers
+function timeToMinutes(t) {
+    const [h, m] = (t || '00:00').split(':').map(Number);
+    return (h || 0) * 60 + (m || 0);
+}
+function minutesToTime(total) {
+    total = Math.max(0, Math.min(24 * 60, Math.round(total)));
+    return String(Math.floor(total / 60)).padStart(2, '0') + ':' + String(total % 60).padStart(2, '0');
+}
+function addMinutes(timeStr, mins) {
+    return minutesToTime(timeToMinutes(timeStr) + mins);
+}
+function diffMinutes(a, b) {
+    return timeToMinutes(b) - timeToMinutes(a);
+}
+
+function fmtDuration(mins) {
+    if (mins <= 0) return '—';
+    const h = Math.floor(mins / 60);
+    const m = mins % 60;
+    if (h === 0) return `${m} min`;
+    if (m === 0) return `${h} h`;
+    return `${h} h ${m} min`;
+}
+
+function fmtDateLong(dateStr) {
+    try {
+        const d = new Date(dateStr + 'T00:00');
+        return d.toLocaleDateString('cs-CZ', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    } catch { return dateStr; }
+}
+
+// Časový slot = 30 min interval, 0..48 (24:00 incl.)
+const SLOT_MIN = 30;
+const SLOT_MAX = (24 * 60) / SLOT_MIN; // 48
+function timeToSlot(t) {
+    const [h, m] = (t || '00:00').split(':').map(Number);
+    return Math.round(((h || 0) * 60 + (m || 0)) / SLOT_MIN);
+}
+function slotToTime(s) {
+    s = Math.max(0, Math.min(SLOT_MAX, s));
+    const total = s * SLOT_MIN;
+    return String(Math.floor(total / 60)).padStart(2, '0') + ':' + String(total % 60).padStart(2, '0');
+}
+
+/* ============================================
+   DUAL RANGE SLIDER — dva táhla na jedné dráze, 30min snap
+   Bez závislosti, jen 2× <input type="range"> a vizuální fill mezi nimi.
+   ============================================ */
+function DualRangeSlider({ startSlot, endSlot, onStart, onEnd }) {
+    // Klamping: start < end (alespoň 1 slot rozdíl)
+    const handleStart = (e) => {
+        let v = parseInt(e.target.value);
+        if (v >= endSlot) v = endSlot - 1;
+        if (v < 0) v = 0;
+        onStart(v);
+    };
+    const handleEnd = (e) => {
+        let v = parseInt(e.target.value);
+        if (v <= startSlot) v = startSlot + 1;
+        if (v > SLOT_MAX) v = SLOT_MAX;
+        onEnd(v);
+    };
+
+    const leftPct = (startSlot / SLOT_MAX) * 100;
+    const rightPct = (endSlot / SLOT_MAX) * 100;
+
+    return (
+        <div className="drs">
+            <div className="drs-track" />
+            <div className="drs-fill" style={{ left: `${leftPct}%`, right: `${100 - rightPct}%` }} />
+            <input type="range" min="0" max={SLOT_MAX} step="1"
+                   value={startSlot} onChange={handleStart}
+                   className="drs-input drs-start"
+                   aria-label="Začátek" />
+            <input type="range" min="0" max={SLOT_MAX} step="1"
+                   value={endSlot} onChange={handleEnd}
+                   className="drs-input drs-end"
+                   aria-label="Konec" />
+        </div>
+    );
+}
+
 function EventForm({ mode, event, initialDate, defaultRate, onClose, onSave, onDelete }) {
     const [title, setTitle] = useState(event?.title || '');
     const [description, setDescription] = useState(event?.description || '');
     const [date, setDate] = useState(event?.date?.slice(0, 10) || initialDate || todayStr());
-    const [time, setTime] = useState(event?.time || '12:00');
+    const [time, setTime] = useState(event?.time || '09:00');
     const [isShift, setIsShift] = useState(Boolean(event?.shiftId));
-    const [endTime, setEndTime] = useState(event?.endTime || '17:00');
+    const [endTime, setEndTime] = useState(event?.endTime || addMinutes(event?.time || '09:00', 240));
     const [wage, setWage] = useState(event?.wage ?? defaultRate ?? 150);
     const [error, setError] = useState('');
     const [confirmDelete, setConfirmDelete] = useState(false);
+
+    // Skryté nativní pickery (otevřené přes ref kliknutím na vlastní velký box)
+    const dateRef = useRef(null);
+    const timeRef = useRef(null);
+    const endRef = useRef(null);
+
+    const openPicker = (ref) => {
+        if (!ref.current) return;
+        // Moderní prohlížeče (iOS Safari 16+, Chrome) podporují showPicker()
+        if (typeof ref.current.showPicker === 'function') {
+            try { ref.current.showPicker(); return; } catch {}
+        }
+        // Fallback: focus + click
+        ref.current.focus();
+        ref.current.click();
+    };
+
+    const duration = diffMinutes(time, endTime);
+
+    const setStart = (newStart) => {
+        // Drží trvání konstantní při změně začátku
+        const dur = duration;
+        setTime(newStart);
+        if (isShift) setEndTime(addMinutes(newStart, dur > 0 ? dur : 240));
+    };
+
+    const setDuration = (mins) => {
+        setEndTime(addMinutes(time, mins));
+    };
 
     const handleSave = () => {
         setError('');
@@ -2289,7 +3047,6 @@ function EventForm({ mode, event, initialDate, defaultRate, onClose, onSave, onD
                 endTime: endIso,
                 hourlyWage: w
             };
-            // uložíme i do event payloadu pro pozdější editaci
             eventData.endTime = endTime;
             eventData.wage = w;
         }
@@ -2308,73 +3065,105 @@ function EventForm({ mode, event, initialDate, defaultRate, onClose, onSave, onD
                 <div className="sheet-body">
                     {error && <div className="error-box">{error}</div>}
 
-                    <div className="form-section">
-                        <div className="form-group">
-                            <input className="form-input text" style={{padding: '14px 16px', width: '100%'}}
-                                   type="text" placeholder="Název aktivity (např. Trénink)"
-                                   value={title} onChange={e => setTitle(e.target.value)} />
-                        </div>
-                    </div>
+                    {/* TITLE */}
+                    <input className="event-title-input" type="text"
+                           placeholder="Název aktivity"
+                           value={title} onChange={e => setTitle(e.target.value)} />
 
-                    <div className="form-section">
-                        <div className="form-section-title">Kdy</div>
-                        <div className="form-group">
-                            <div className="form-row">
-                                <div className="form-label">Datum</div>
-                                <input className="form-input" type="date" value={date}
-                                       onChange={e => setDate(e.target.value)} />
-                            </div>
-                            <div className="form-row">
-                                <div className="form-label">Čas</div>
-                                <input className="form-input" type="time" value={time}
-                                       onChange={e => setTime(e.target.value)} />
-                            </div>
-                        </div>
-                    </div>
+                    {/* DATE — velký touch box */}
+                    <button type="button" className="big-picker" onClick={() => openPicker(dateRef)}>
+                        <span className="big-picker-label">Datum</span>
+                        <span className="big-picker-value">{fmtDateLong(date)}</span>
+                        <input ref={dateRef} type="date" value={date}
+                               onChange={e => setDate(e.target.value)}
+                               style={{position: 'absolute', opacity: 0, pointerEvents: 'none', width: 0, height: 0}} />
+                    </button>
 
-                    <div className="form-section">
-                        <div className="form-section-title">Poznámka</div>
-                        <div className="form-group">
-                            <textarea className="form-textarea" placeholder="Detaily, místo, kontakt…"
-                                      style={{minHeight: 90}}
-                                      value={description} onChange={e => setDescription(e.target.value)} />
-                        </div>
-                    </div>
-
-                    <div className="form-section">
-                        <button type="button"
-                                className={'shift-toggle' + (isShift ? ' active' : '')}
-                                onClick={() => setIsShift(v => !v)}>
-                            <span className="shift-toggle-icon"><Icon name="briefcase" size={18} /></span>
-                            <span className="shift-toggle-label">
-                                <span className="shift-toggle-title">Týká se brigády</span>
-                                <span className="shift-toggle-sub">
-                                    {isShift ? 'Vytvoří se i plánovaná směna' : 'Vytvoří jen aktivitu v kalendáři'}
-                                </span>
-                            </span>
-                            <span className="shift-toggle-switch">
-                                <span className="shift-toggle-knob" />
-                            </span>
+                    {/* TIME — bez směny: jeden čas, klepnutím native picker */}
+                    {!isShift && (
+                        <button type="button" className="big-picker time-single" onClick={() => openPicker(timeRef)}>
+                            <span className="big-picker-label">Čas</span>
+                            <span className="big-picker-value time-big">{time}</span>
+                            <input ref={timeRef} type="time" value={time}
+                                   onChange={e => setTime(e.target.value)}
+                                   style={{position: 'absolute', opacity: 0, pointerEvents: 'none', width: 0, height: 0}} />
                         </button>
-                    </div>
+                    )}
 
+                    {/* TIME — se směnou: vizuální od/do + dual range slider */}
                     {isShift && (
-                        <div className="form-section">
-                            <div className="form-section-title">Směna</div>
-                            <div className="form-group">
-                                <div className="form-row">
-                                    <div className="form-label">Konec</div>
-                                    <input className="form-input" type="time" value={endTime}
-                                           onChange={e => setEndTime(e.target.value)} />
+                        <div className="time-range-card">
+                            <div className="time-range">
+                                <button type="button" className="time-pill" onClick={() => openPicker(timeRef)}>
+                                    <span className="time-pill-label">Začátek</span>
+                                    <span className="time-pill-value">{time}</span>
+                                    <input ref={timeRef} type="time" value={time}
+                                           onChange={e => setStart(e.target.value)}
+                                           style={{position: 'absolute', opacity: 0, pointerEvents: 'none', width: 0, height: 0}} />
+                                </button>
+                                <div className="time-range-arrow">
+                                    <span className="time-range-duration">{fmtDuration(duration)}</span>
                                 </div>
-                                <div className="form-row">
-                                    <div className="form-label">Sazba (Kč/h)</div>
-                                    <input className="form-input" type="number" step="10" min="0"
-                                           value={wage} onChange={e => setWage(e.target.value)} />
-                                </div>
+                                <button type="button" className="time-pill" onClick={() => openPicker(endRef)}>
+                                    <span className="time-pill-label">Konec</span>
+                                    <span className="time-pill-value">{endTime}</span>
+                                    <input ref={endRef} type="time" value={endTime}
+                                           onChange={e => setEndTime(e.target.value)}
+                                           style={{position: 'absolute', opacity: 0, pointerEvents: 'none', width: 0, height: 0}} />
+                                </button>
+                            </div>
+
+                            <DualRangeSlider
+                                startSlot={timeToSlot(time)}
+                                endSlot={timeToSlot(endTime)}
+                                onStart={(s) => setTime(slotToTime(s))}
+                                onEnd={(s) => setEndTime(slotToTime(s))}
+                            />
+
+                            <div className="drs-axis">
+                                <span>0</span><span>6</span><span>12</span><span>18</span><span>24</span>
                             </div>
                         </div>
                     )}
+
+                    {/* SHIFT TOGGLE */}
+                    <button type="button"
+                            className={'shift-toggle' + (isShift ? ' active' : '')}
+                            onClick={() => setIsShift(v => !v)}
+                            style={{marginTop: 14}}>
+                        <span className="shift-toggle-icon"><Icon name="briefcase" size={18} /></span>
+                        <span className="shift-toggle-label">
+                            <span className="shift-toggle-title">Týká se brigády</span>
+                            <span className="shift-toggle-sub">
+                                {isShift ? 'Vytvoří se i plánovaná směna' : 'Jen aktivita v kalendáři'}
+                            </span>
+                        </span>
+                        <span className="shift-toggle-switch">
+                            <span className="shift-toggle-knob" />
+                        </span>
+                    </button>
+
+                    {/* SHIFT EXTRAS */}
+                    {isShift && (
+                        <>
+                            <div className="form-section-title" style={{marginTop: 16}}>Hodinová sazba</div>
+                            <div className="wage-box">
+                                <input className="wage-input" type="number" step="10" min="0" inputMode="numeric"
+                                       value={wage} onChange={e => setWage(e.target.value)} />
+                                <span className="wage-suffix">Kč/h</span>
+                            </div>
+                            <div className="wage-summary">
+                                ≈ <strong>{fmtCZK((duration / 60) * (parseFloat(wage) || 0))}</strong> celkem
+                            </div>
+                        </>
+                    )}
+
+                    {/* DESCRIPTION */}
+                    <div className="form-section-title" style={{marginTop: 18}}>Poznámka</div>
+                    <textarea className="event-textarea"
+                              placeholder="Detaily, místo, kontakt…"
+                              value={description}
+                              onChange={e => setDescription(e.target.value)} />
 
                     {mode === 'edit' && (
                         <button className="delete-btn" onClick={() => setConfirmDelete(true)}>Smazat aktivitu</button>
@@ -2447,7 +3236,7 @@ function ShiftsScreen({ shifts, defaultRate, actions }) {
                                 <div className="shift-hours">
                                     {fmtHours(hoursBetween(sh.startTime, sh.endTime))} · {sh.hourlyWage} Kč/h
                                 </div>
-                                <div className="shift-earnings">
+                                <div className={'shift-earnings ' + (sh.status === 'completed' ? 'tone-earned' : 'tone-expected')}>
                                     {fmtCZK(hoursBetween(sh.startTime, sh.endTime) * sh.hourlyWage)}
                                 </div>
                             </div>
@@ -2640,20 +3429,65 @@ function ShiftForm({ mode, shift, defaultRate, onClose, onSave, onDelete }) {
 /* ============================================
    EARNINGS SCREEN
    ============================================ */
+// Pomocná: vyber rok+měsíc směny podle data startu (lokální čas)
+function shiftYearMonth(sh) {
+    const d = new Date(sh.startTime || sh.date);
+    return { year: d.getFullYear(), month: d.getMonth() };
+}
+
+// Spočítá souhrn z libovolného setu směn
+function summarize(shifts) {
+    const completed = shifts.filter(s => s.status === 'completed');
+    const upcoming = shifts.filter(s => s.status === 'upcoming');
+    const earned = completed.reduce((s, x) => s + hoursBetween(x.startTime, x.endTime) * x.hourlyWage, 0);
+    const earnedHours = completed.reduce((s, x) => s + hoursBetween(x.startTime, x.endTime), 0);
+    const expected = upcoming.reduce((s, x) => s + hoursBetween(x.startTime, x.endTime) * x.hourlyWage, 0);
+    const expectedHours = upcoming.reduce((s, x) => s + hoursBetween(x.startTime, x.endTime), 0);
+    return {
+        earned, earnedHours, expected, expectedHours,
+        completedCount: completed.length, upcomingCount: upcoming.length,
+        combined: earned + expected
+    };
+}
+
+function shiftCountLabel(n) {
+    if (n === 1) return 'směna';
+    if (n < 5) return 'směny';
+    return 'směn';
+}
+
 function EarningsScreen({ shifts }) {
-    const summary = useMemo(() => {
-        const completed = shifts.filter(s => s.status === 'completed');
-        const upcoming = shifts.filter(s => s.status === 'upcoming');
-        const totalEarned = completed.reduce((s, x) => s + hoursBetween(x.startTime, x.endTime) * x.hourlyWage, 0);
-        const totalHours = completed.reduce((s, x) => s + hoursBetween(x.startTime, x.endTime), 0);
-        const expected = upcoming.reduce((s, x) => s + hoursBetween(x.startTime, x.endTime) * x.hourlyWage, 0);
-        const expectedHours = upcoming.reduce((s, x) => s + hoursBetween(x.startTime, x.endTime), 0);
-        return {
-            totalEarned, totalHours, expected, expectedHours,
-            completedCount: completed.length, upcomingCount: upcoming.length,
-            combined: totalEarned + expected
-        };
-    }, [shifts]);
+    // Měsíční kurzor — defaultně aktuální měsíc
+    const [cursor, setCursor] = useState(() => {
+        const t = new Date();
+        return { year: t.getFullYear(), month: t.getMonth() };
+    });
+    const [showAllTime, setShowAllTime] = useState(false);
+
+    // Filtrované směny pro vybraný měsíc
+    const monthShifts = useMemo(() => shifts.filter(sh => {
+        const ym = shiftYearMonth(sh);
+        return ym.year === cursor.year && ym.month === cursor.month;
+    }), [shifts, cursor]);
+
+    const monthSummary = useMemo(() => summarize(monthShifts), [monthShifts]);
+    const allSummary = useMemo(() => summarize(shifts), [shifts]);
+
+    const goPrev = () => setCursor(c => {
+        const m = c.month - 1;
+        return m < 0 ? { year: c.year - 1, month: 11 } : { year: c.year, month: m };
+    });
+    const goNext = () => setCursor(c => {
+        const m = c.month + 1;
+        return m > 11 ? { year: c.year + 1, month: 0 } : { year: c.year, month: m };
+    });
+
+    // Můžeme jít dál? (zakážeme jen úplnou budoucnost — nech max +1 rok pro plánování)
+    const monthLabel = `${MONTH_NAMES[cursor.month]} ${cursor.year}`;
+    const isCurrentMonth = (() => {
+        const t = new Date();
+        return t.getFullYear() === cursor.year && t.getMonth() === cursor.month;
+    })();
 
     return (
         <>
@@ -2661,42 +3495,111 @@ function EarningsScreen({ shifts }) {
                 <div className="nav-title">Výdělek</div>
             </header>
             <main className="scroll">
-                {shifts.length === 0 ? (
-                    <div className="empty">
+                {/* Měsíční přepínač */}
+                <div className="month-switcher">
+                    <button className="cal-nav" onClick={goPrev} aria-label="Předchozí měsíc">
+                        <Icon name="chevronLeft" size={20} />
+                    </button>
+                    <div className="month-switcher-label">
+                        <span className="month-switcher-name">{monthLabel}</span>
+                        {isCurrentMonth && <span className="month-switcher-badge">tento měsíc</span>}
+                    </div>
+                    <button className="cal-nav" onClick={goNext} aria-label="Další měsíc">
+                        <Icon name="chevronRight" size={20} />
+                    </button>
+                </div>
+
+                {monthShifts.length === 0 ? (
+                    <div className="empty" style={{padding: '40px 20px'}}>
                         <div className="empty-icon"><Icon name="wage" size={36} /></div>
-                        <h2>Žádný výdělek</h2>
-                        <p>Přidej směny v záložce Směny.</p>
+                        <h2>Žádné směny</h2>
+                        <p>V {monthLabel.toLowerCase()} žádné směny nemáš.</p>
                     </div>
                 ) : (
                     <>
                         <div className="glass earnings-hero">
                             <div className="earnings-label">
                                 <Icon name="check" size={16} />
-                                Celkem vyděláno
+                                Vyděláno za měsíc
                             </div>
-                            <div className="earnings-big">{fmtCZK(summary.totalEarned)}</div>
+                            <div className="earnings-big tone-earned">{fmtCZK(monthSummary.earned)}</div>
                             <div className="earnings-sub">
-                                {summary.completedCount} {summary.completedCount === 1 ? 'směna' : summary.completedCount < 5 ? 'směny' : 'směn'} · {fmtHours(summary.totalHours)}
+                                {monthSummary.completedCount} {shiftCountLabel(monthSummary.completedCount)} · {fmtHours(monthSummary.earnedHours)}
                             </div>
                         </div>
 
+                        {monthSummary.upcomingCount > 0 && (
+                            <div className="glass earnings-hero">
+                                <div className="earnings-label">
+                                    <Icon name="calendar" size={16} />
+                                    Očekáváno za měsíc
+                                </div>
+                                <div className="earnings-big earnings-small tone-expected">≈ {fmtCZK(monthSummary.expected)}</div>
+                                <div className="earnings-sub">
+                                    {monthSummary.upcomingCount} {monthSummary.upcomingCount === 1 ? 'plánovaná' : 'plánované'} · ~{fmtHours(monthSummary.expectedHours)}
+                                </div>
+                            </div>
+                        )}
+
+                        {monthSummary.upcomingCount > 0 && monthSummary.completedCount > 0 && (
+                            <div className="earnings-combined">
+                                <div className="earnings-label" style={{marginBottom: 10}}>Měsíční výhled</div>
+                                <div className="earnings-big tone-combined">{fmtCZK(monthSummary.combined)}</div>
+                                <div className="earnings-sub">Vyděláno + očekáváno</div>
+                            </div>
+                        )}
+                    </>
+                )}
+
+                {/* Celkem za celou dobu — rozbalovací */}
+                {shifts.length > 0 && (
+                    <button className={'all-time-toggle' + (showAllTime ? ' open' : '')}
+                            onClick={() => setShowAllTime(v => !v)}>
+                        <span className="all-time-toggle-icon">
+                            <Icon name={showAllTime ? 'chevronLeft' : 'chevronRight'} size={16} />
+                        </span>
+                        <span className="all-time-toggle-label">
+                            <span className="all-time-toggle-title">Celkem za celou dobu</span>
+                            <span className="all-time-toggle-sub">
+                                {showAllTime ? 'Klepni pro skrytí' : 'Souhrn všech směn'}
+                            </span>
+                        </span>
+                        <span className="all-time-toggle-value tone-lifetime">{fmtCZK(allSummary.earned)}</span>
+                    </button>
+                )}
+
+                {showAllTime && shifts.length > 0 && (
+                    <div className="all-time-panel">
                         <div className="glass earnings-hero">
                             <div className="earnings-label">
-                                <Icon name="calendar" size={16} />
-                                Očekávaný výdělek
+                                <Icon name="check" size={16} />
+                                Celkem vyděláno
                             </div>
-                            <div className="earnings-big earnings-small">≈ {fmtCZK(summary.expected)}</div>
+                            <div className="earnings-big tone-lifetime">{fmtCZK(allSummary.earned)}</div>
                             <div className="earnings-sub">
-                                {summary.upcomingCount} {summary.upcomingCount === 1 ? 'plánovaná' : 'plánované'} · ~{fmtHours(summary.expectedHours)}
+                                {allSummary.completedCount} {shiftCountLabel(allSummary.completedCount)} · {fmtHours(allSummary.earnedHours)}
                             </div>
                         </div>
+
+                        {allSummary.upcomingCount > 0 && (
+                            <div className="glass earnings-hero">
+                                <div className="earnings-label">
+                                    <Icon name="calendar" size={16} />
+                                    Očekáváno celkem
+                                </div>
+                                <div className="earnings-big earnings-small tone-expected">≈ {fmtCZK(allSummary.expected)}</div>
+                                <div className="earnings-sub">
+                                    {allSummary.upcomingCount} plánované · ~{fmtHours(allSummary.expectedHours)}
+                                </div>
+                            </div>
+                        )}
 
                         <div className="earnings-combined">
                             <div className="earnings-label" style={{marginBottom: 10}}>Celkový výhled</div>
-                            <div className="earnings-big">{fmtCZK(summary.combined)}</div>
-                            <div className="earnings-sub">Minulé + plánované</div>
+                            <div className="earnings-big tone-combined">{fmtCZK(allSummary.combined)}</div>
+                            <div className="earnings-sub">Vyděláno + plánované</div>
                         </div>
-                    </>
+                    </div>
                 )}
             </main>
         </>
@@ -2755,11 +3658,14 @@ function SettingsScreen({ settings, actions, user }) {
                             <div className="settings-label">Téma</div>
                         </div>
                         <div className="theme-select">
-                            {['light', 'auto', 'dark'].map(t => (
+                            {['light', 'auto', 'dark', 'disco'].map(t => (
                                 <button key={t}
-                                        className={'theme-option' + (settings.theme === t ? ' active' : '')}
+                                        className={'theme-option' + ((settings.theme === t || (t === 'disco' && settings.theme === 'clean')) ? ' active' : '')}
                                         onClick={() => actions.setSetting('theme', t)}>
-                                    {t === 'light' ? 'Světlý' : t === 'dark' ? 'Tmavý' : 'Auto'}
+                                    {t === 'light' ? 'Světlý'
+                                     : t === 'dark' ? 'Tmavý'
+                                     : t === 'disco' ? 'Disco'
+                                     : 'Auto'}
                                 </button>
                             ))}
                         </div>
