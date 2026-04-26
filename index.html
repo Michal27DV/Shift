@@ -691,8 +691,9 @@ body::after {
 .sheet {
     width: 100%;
     max-width: 500px;
-    /* iOS FIX: dvh - sheet se nemá přetáhnout přes klávesnici */
-    max-height: 92dvh;
+    /* iOS FIX: max-height se zmenší o výšku klávesnice (--kb-offset),
+       aby sheet nezasahoval pod status bar / dynamic island. */
+    max-height: calc(92dvh - var(--kb-offset, 0px));
     background:
         linear-gradient(180deg, rgba(14, 10, 28, 0.96), rgba(6, 4, 16, 0.98));
     backdrop-filter: blur(40px) saturate(180%);
@@ -1138,7 +1139,7 @@ input[type="date"], input[type="time"], input[type="number"] {
    CALENDAR
    ============================================ */
 .calendar-sheet {
-    max-height: 95dvh;
+    max-height: calc(95dvh - var(--kb-offset, 0px));
 }
 
 .cal-header {
@@ -2057,7 +2058,7 @@ function NoteEditor({ mode, note, onSave, onDelete, onClose }) {
                     <div className="form-section">
                         <div className="form-group">
                             <input className="form-input text" style={{padding: '14px 16px', width: '100%'}} type="text" placeholder="Název"
-                                   value={title} onChange={e => setTitle(e.target.value)} autoFocus />
+                                   value={title} onChange={e => setTitle(e.target.value)} />
                         </div>
                     </div>
                     <div className="form-section">
@@ -2311,7 +2312,7 @@ function EventForm({ mode, event, initialDate, defaultRate, onClose, onSave, onD
                         <div className="form-group">
                             <input className="form-input text" style={{padding: '14px 16px', width: '100%'}}
                                    type="text" placeholder="Název aktivity (např. Trénink)"
-                                   value={title} onChange={e => setTitle(e.target.value)} autoFocus />
+                                   value={title} onChange={e => setTitle(e.target.value)} />
                         </div>
                     </div>
 
@@ -2788,6 +2789,18 @@ function SettingsScreen({ settings, actions, user }) {
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+
+    <!-- Service Worker registrace — offline mode, install na plochu jako PWA.
+         Path je relativní (./sw.js), takže funguje i na podcestě GitHub Pages (/Shift/). -->
+    <script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js').catch(err =>
+                console.warn('SW registration failed:', err)
+            );
+        });
+    }
     </script>
 </body>
 </html>
