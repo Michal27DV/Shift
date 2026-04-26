@@ -661,6 +661,12 @@ body::after {
 .fab:active { transform: scale(0.9); }
 .fab svg { width: 26px; height: 26px; position: relative; z-index: 1; }
 
+/* Druhý FAB (kalendář) — stejný design, vlevo od hlavního */
+.fab-secondary {
+    right: calc(20px + 58px + 12px); /* hlavní FAB + gap */
+}
+.fab-secondary svg { width: 24px; height: 24px; }
+
 /* ============================================
    SHEETS / MODALS
    ============================================ */
@@ -1128,6 +1134,267 @@ input[type="date"], input[type="time"], input[type="number"] {
     box-shadow: 0 0 6px var(--success);
 }
 
+/* ============================================
+   CALENDAR
+   ============================================ */
+.calendar-sheet {
+    max-height: 95dvh;
+}
+
+.cal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 4px 14px;
+}
+.cal-title {
+    font-size: 17px;
+    font-weight: 600;
+    text-transform: capitalize;
+    letter-spacing: -0.01em;
+}
+.cal-nav {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.06);
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.12s, background 0.2s;
+    font-family: inherit;
+}
+.cal-nav:active { transform: scale(0.92); background: rgba(255,255,255,0.1); }
+
+.cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: var(--radius-md);
+    padding: 4px;
+}
+.cal-dayname {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-tertiary);
+    padding: 6px 0 4px;
+}
+.cal-cell {
+    aspect-ratio: 1 / 1;
+    background: none;
+    border: none;
+    color: var(--text);
+    font-family: inherit;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    border-radius: 10px;
+    padding: 0;
+    transition: background 0.15s, transform 0.1s;
+    position: relative;
+}
+.cal-cell:active { transform: scale(0.94); }
+.cal-cell.out { color: var(--text-tertiary); opacity: 0.45; }
+.cal-cell.today .cal-num {
+    color: var(--accent);
+    font-weight: 700;
+}
+.cal-cell.selected {
+    background: linear-gradient(135deg, rgba(122, 166, 255, 0.32), rgba(167, 139, 250, 0.22));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.18);
+}
+.cal-cell.selected .cal-num { color: #fff; font-weight: 700; }
+.cal-num {
+    font-size: 14px;
+    font-variant-numeric: tabular-nums;
+}
+.cal-dots {
+    display: flex;
+    gap: 2px;
+    height: 4px;
+}
+.cal-dot {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--accent);
+}
+.cal-dots.has-shift .cal-dot { background: var(--accent-2); }
+.cal-cell.selected .cal-dot { background: #fff; }
+
+.cal-day-section {
+    margin-top: 18px;
+}
+.cal-day-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: capitalize;
+    margin: 0 4px 10px;
+}
+.cal-empty {
+    padding: 24px 16px;
+    text-align: center;
+    font-size: 14px;
+    color: var(--text-tertiary);
+    background: rgba(255,255,255,0.02);
+    border: 1px dashed rgba(255,255,255,0.08);
+    border-radius: var(--radius-sm);
+    margin-bottom: 10px;
+}
+.cal-event {
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: transform 0.12s, background 0.2s;
+}
+.cal-event:active { transform: scale(0.98); background: var(--card-bg-active); }
+.cal-event > * { position: relative; z-index: 1; }
+.cal-event-time {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+    margin-bottom: 4px;
+}
+.cal-event-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    background: rgba(167, 139, 250, 0.15);
+    border: 1px solid rgba(167, 139, 250, 0.3);
+    color: #c4b5fd;
+    border-radius: 100px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.cal-event-title {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin-bottom: 2px;
+}
+.cal-event-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.cal-add-btn {
+    width: 100%;
+    padding: 13px;
+    margin-top: 6px;
+    background: rgba(122, 166, 255, 0.12);
+    border: 1px solid rgba(122, 166, 255, 0.25);
+    color: var(--accent);
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background 0.2s, transform 0.12s;
+}
+.cal-add-btn:active { transform: scale(0.98); background: rgba(122, 166, 255, 0.2); }
+
+/* ============================================
+   SHIFT TOGGLE — checkbox "Týká se brigády"
+   ============================================ */
+.shift-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-family: inherit;
+    color: var(--text);
+    text-align: left;
+    transition: border-color 0.2s, background 0.2s;
+}
+.shift-toggle:active { transform: scale(0.99); }
+.shift-toggle.active {
+    border-color: rgba(122, 166, 255, 0.35);
+    background: linear-gradient(135deg, rgba(122,166,255,0.08), rgba(167,139,250,0.05)), var(--card-bg);
+}
+.shift-toggle-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.05);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+    transition: background 0.2s, color 0.2s;
+}
+.shift-toggle.active .shift-toggle-icon {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #fff;
+}
+.shift-toggle-label {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.shift-toggle-title {
+    font-size: 15px;
+    font-weight: 600;
+}
+.shift-toggle-sub {
+    font-size: 12px;
+    color: var(--text-tertiary);
+}
+.shift-toggle-switch {
+    width: 42px;
+    height: 26px;
+    border-radius: 13px;
+    background: rgba(255,255,255,0.1);
+    position: relative;
+    flex-shrink: 0;
+    transition: background 0.25s;
+}
+.shift-toggle.active .shift-toggle-switch {
+    background: var(--accent);
+}
+.shift-toggle-knob {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.shift-toggle.active .shift-toggle-knob {
+    transform: translateX(16px);
+}
+
 /* Splash spinner */
 .splash-spinner {
     width: 36px; height: 36px;
@@ -1240,13 +1507,14 @@ const STORAGE_KEY = 'shift-app-v3';
 const cacheKey = (uid) => `${STORAGE_KEY}:${uid}`;
 
 function initialState() {
-    return { notes: [], shifts: [], settings: { hourlyRate: 150, theme: 'dark' } };
+    return { notes: [], shifts: [], events: [], settings: { hourlyRate: 150, theme: 'dark' } };
 }
 
 function normalize(parsed) {
     return {
         notes: parsed?.notes || [],
         shifts: parsed?.shifts || [],
+        events: parsed?.events || [],
         settings: { hourlyRate: 150, theme: 'dark', ...(parsed?.settings || {}) }
     };
 }
@@ -1346,6 +1614,9 @@ const Icon = ({ name, size = 24 }) => {
         check: <><circle cx="12" cy="12" r="10" strokeWidth="1.8"/><path d="M9 12l2 2 4-4" strokeWidth="1.8" strokeLinecap="round"/></>,
         calendar: <><rect x="3" y="4" width="18" height="18" rx="2" strokeWidth="1.8"/><path d="M16 2v4M8 2v4M3 10h18" strokeWidth="1.8"/></>,
         info: <><circle cx="12" cy="12" r="10" strokeWidth="1.8"/><path d="M12 16v-4M12 8h.01" strokeWidth="1.8" strokeLinecap="round"/></>,
+        chevronLeft: <path d="M15 18l-6-6 6-6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>,
+        chevronRight: <path d="M9 18l6-6-6-6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>,
+        briefcase: <><rect x="2" y="7" width="20" height="14" rx="2" strokeWidth="1.8"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" strokeWidth="1.8"/></>,
     };
     return (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinejoin="round" width={size} height={size}>
@@ -1624,6 +1895,54 @@ function AppShell({ user }) {
         deleteShift: (id) => {
             setState(s => ({ ...s, shifts: s.shifts.filter(sh => sh.id !== id) }));
         },
+        // EVENTS — kalendářové aktivity, mohou být propojené s plánovanou směnou
+        addEvent: (event, linkedShift) => {
+            setState(s => {
+                const eventId = uid();
+                const now = new Date().toISOString();
+                let shiftId = null;
+                let newShifts = s.shifts;
+                if (linkedShift) {
+                    shiftId = uid();
+                    newShifts = [...s.shifts, { ...linkedShift, id: shiftId, status: 'upcoming', eventId, createdAt: now }];
+                }
+                const newEvent = { ...event, id: eventId, shiftId, createdAt: now };
+                return { ...s, events: [...s.events, newEvent], shifts: newShifts };
+            });
+        },
+        updateEvent: (id, updates, linkedShift) => {
+            setState(s => {
+                const oldEvent = s.events.find(e => e.id === id);
+                if (!oldEvent) return s;
+                let shiftId = oldEvent.shiftId;
+                let newShifts = s.shifts;
+                const now = new Date().toISOString();
+                if (linkedShift && shiftId) {
+                    // update existing shift
+                    newShifts = s.shifts.map(sh => sh.id === shiftId ? { ...sh, ...linkedShift } : sh);
+                } else if (linkedShift && !shiftId) {
+                    // newly attached
+                    shiftId = uid();
+                    newShifts = [...s.shifts, { ...linkedShift, id: shiftId, status: 'upcoming', eventId: id, createdAt: now }];
+                } else if (!linkedShift && shiftId) {
+                    // detach: keep shift but unlink, OR delete? Default: delete to match user intent
+                    newShifts = s.shifts.filter(sh => sh.id !== shiftId);
+                    shiftId = null;
+                }
+                return {
+                    ...s,
+                    events: s.events.map(e => e.id === id ? { ...e, ...updates, shiftId } : e),
+                    shifts: newShifts
+                };
+            });
+        },
+        deleteEvent: (id) => {
+            setState(s => {
+                const ev = s.events.find(e => e.id === id);
+                const newShifts = ev?.shiftId ? s.shifts.filter(sh => sh.id !== ev.shiftId) : s.shifts;
+                return { ...s, events: s.events.filter(e => e.id !== id), shifts: newShifts };
+            });
+        },
         setSetting: (key, value) => {
             setState(s => ({ ...s, settings: { ...s.settings, [key]: value } }));
         }
@@ -1631,7 +1950,7 @@ function AppShell({ user }) {
 
     return (
         <>
-            {tab === 'notes' && <NotesScreen notes={state.notes} actions={actions} />}
+            {tab === 'notes' && <NotesScreen notes={state.notes} events={state.events} defaultRate={state.settings.hourlyRate} actions={actions} />}
             {tab === 'shifts' && <ShiftsScreen shifts={state.shifts} defaultRate={state.settings.hourlyRate} actions={actions} />}
             {tab === 'earnings' && <EarningsScreen shifts={state.shifts} />}
             {tab === 'settings' && <SettingsScreen settings={state.settings} actions={actions} user={user} />}
@@ -1667,8 +1986,9 @@ function TabBar({ current, onChange }) {
 /* ============================================
    NOTES SCREEN
    ============================================ */
-function NotesScreen({ notes, actions }) {
+function NotesScreen({ notes, events, defaultRate, actions }) {
     const [editor, setEditor] = useState(null);
+    const [calendarOpen, setCalendarOpen] = useState(false);
     const sorted = [...notes].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
 
     return (
@@ -1694,6 +2014,9 @@ function NotesScreen({ notes, actions }) {
                     ))
                 )}
             </main>
+            <button className="fab fab-secondary" onClick={() => setCalendarOpen(true)} aria-label="Kalendář">
+                <Icon name="calendar" size={24} />
+            </button>
             <button className="fab" onClick={() => setEditor({ mode: 'create' })} aria-label="Nová poznámka">
                 <Icon name="plus" size={26} />
             </button>
@@ -1706,6 +2029,10 @@ function NotesScreen({ notes, actions }) {
                     }}
                     onDelete={() => { actions.deleteNote(editor.note.id); setEditor(null); }}
                     onClose={() => setEditor(null)} />
+            )}
+            {calendarOpen && (
+                <CalendarScreen events={events} defaultRate={defaultRate} actions={actions}
+                                onClose={() => setCalendarOpen(false)} />
             )}
         </>
     );
@@ -1749,6 +2076,315 @@ function NoteEditor({ mode, note, onSave, onDelete, onClose }) {
                     <div className="alert" onClick={e => e.stopPropagation()}>
                         <h3>Smazat poznámku?</h3>
                         <p>Tuto akci nelze vzít zpět.</p>
+                        <div className="alert-buttons">
+                            <button onClick={() => setConfirmDelete(false)}>Zrušit</button>
+                            <button className="destructive" onClick={onDelete}>Smazat</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}
+
+/* ============================================
+   CALENDAR SCREEN — měsíční mřížka, výběr dne, přidání aktivity
+   ============================================ */
+const DAY_NAMES = ['Po', 'Út', 'St', 'Čt', 'Pá', 'So', 'Ne'];
+const MONTH_NAMES = ['leden', 'únor', 'březen', 'duben', 'květen', 'červen',
+                     'červenec', 'srpen', 'září', 'říjen', 'listopad', 'prosinec'];
+
+function isoDay(date) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+}
+
+function buildMonthGrid(year, month) {
+    // month = 0-11. Vrací 6x7 mřížku Date objektů, počínaje pondělím
+    const firstOfMonth = new Date(year, month, 1);
+    let start = new Date(firstOfMonth);
+    // Posun na pondělí (getDay: 0=Ne, 1=Po)
+    const offset = (firstOfMonth.getDay() + 6) % 7;
+    start.setDate(firstOfMonth.getDate() - offset);
+    const cells = [];
+    for (let i = 0; i < 42; i++) {
+        const d = new Date(start);
+        d.setDate(start.getDate() + i);
+        cells.push(d);
+    }
+    return cells;
+}
+
+function CalendarScreen({ events, defaultRate, actions, onClose }) {
+    const [cursor, setCursor] = useState(() => {
+        const t = new Date();
+        return { year: t.getFullYear(), month: t.getMonth() };
+    });
+    const [selectedDay, setSelectedDay] = useState(() => isoDay(new Date()));
+    const [editor, setEditor] = useState(null);
+
+    const cells = useMemo(() => buildMonthGrid(cursor.year, cursor.month), [cursor]);
+    const todayIso = isoDay(new Date());
+
+    // Mapa: ISO den -> počet eventů
+    const eventsByDay = useMemo(() => {
+        const map = {};
+        events.forEach(e => {
+            const k = (e.date || '').slice(0, 10);
+            if (!k) return;
+            (map[k] = map[k] || []).push(e);
+        });
+        return map;
+    }, [events]);
+
+    const dayEvents = (eventsByDay[selectedDay] || [])
+        .sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+
+    const goPrev = () => setCursor(c => {
+        const m = c.month - 1;
+        return m < 0 ? { year: c.year - 1, month: 11 } : { year: c.year, month: m };
+    });
+    const goNext = () => setCursor(c => {
+        const m = c.month + 1;
+        return m > 11 ? { year: c.year + 1, month: 0 } : { year: c.year, month: m };
+    });
+    const goToday = () => {
+        const t = new Date();
+        setCursor({ year: t.getFullYear(), month: t.getMonth() });
+        setSelectedDay(isoDay(t));
+    };
+
+    return (
+        <div className="overlay" onClick={onClose}>
+            <div className="sheet calendar-sheet" onClick={e => e.stopPropagation()}>
+                <div className="sheet-header">
+                    <button className="sheet-btn" onClick={onClose}>Zavřít</button>
+                    <div className="sheet-title">Kalendář</div>
+                    <button className="sheet-btn primary" onClick={goToday}>Dnes</button>
+                </div>
+                <div className="sheet-body" style={{padding: '14px 16px 24px'}}>
+                    <div className="cal-header">
+                        <button className="cal-nav" onClick={goPrev} aria-label="Předchozí měsíc">
+                            <Icon name="chevronLeft" size={20} />
+                        </button>
+                        <div className="cal-title">
+                            {MONTH_NAMES[cursor.month]} {cursor.year}
+                        </div>
+                        <button className="cal-nav" onClick={goNext} aria-label="Další měsíc">
+                            <Icon name="chevronRight" size={20} />
+                        </button>
+                    </div>
+
+                    <div className="cal-grid">
+                        {DAY_NAMES.map(d => <div key={d} className="cal-dayname">{d}</div>)}
+                        {cells.map((d, i) => {
+                            const iso = isoDay(d);
+                            const inMonth = d.getMonth() === cursor.month;
+                            const isToday = iso === todayIso;
+                            const isSelected = iso === selectedDay;
+                            const evs = eventsByDay[iso] || [];
+                            const hasShift = evs.some(e => e.shiftId);
+                            return (
+                                <button key={i}
+                                        className={'cal-cell'
+                                            + (inMonth ? '' : ' out')
+                                            + (isToday ? ' today' : '')
+                                            + (isSelected ? ' selected' : '')}
+                                        onClick={() => setSelectedDay(iso)}>
+                                    <span className="cal-num">{d.getDate()}</span>
+                                    {evs.length > 0 && (
+                                        <span className={'cal-dots' + (hasShift ? ' has-shift' : '')}>
+                                            {evs.slice(0, 3).map((_, j) => <span key={j} className="cal-dot" />)}
+                                        </span>
+                                    )}
+                                </button>
+                            );
+                        })}
+                    </div>
+
+                    <div className="cal-day-section">
+                        <div className="cal-day-title">
+                            {(() => {
+                                const d = new Date(selectedDay + 'T00:00');
+                                return d.toLocaleDateString('cs-CZ', { weekday: 'long', day: 'numeric', month: 'long' });
+                            })()}
+                        </div>
+
+                        {dayEvents.length === 0 ? (
+                            <div className="cal-empty">Žádné aktivity. Klikni na + pro přidání.</div>
+                        ) : (
+                            dayEvents.map(ev => (
+                                <div key={ev.id} className="glass cal-event"
+                                     onClick={() => setEditor({ mode: 'edit', event: ev })}>
+                                    <div className="cal-event-time">
+                                        {ev.time || '—'}
+                                        {ev.shiftId && <span className="cal-event-tag"><Icon name="briefcase" size={11} /> Brigáda</span>}
+                                    </div>
+                                    <div className="cal-event-title">{ev.title || 'Bez názvu'}</div>
+                                    {ev.description && <div className="cal-event-desc">{ev.description}</div>}
+                                </div>
+                            ))
+                        )}
+
+                        <button className="cal-add-btn" onClick={() => setEditor({ mode: 'create' })}>
+                            <Icon name="plus" size={18} /> Přidat aktivitu
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {editor && (
+                <EventForm mode={editor.mode} event={editor.event} initialDate={selectedDay}
+                           defaultRate={defaultRate}
+                           onClose={() => setEditor(null)}
+                           onSave={(data, linkedShift) => {
+                               if (editor.mode === 'create') actions.addEvent(data, linkedShift);
+                               else actions.updateEvent(editor.event.id, data, linkedShift);
+                               setEditor(null);
+                           }}
+                           onDelete={() => { actions.deleteEvent(editor.event.id); setEditor(null); }} />
+            )}
+        </div>
+    );
+}
+
+/* ============================================
+   EVENT FORM — vytvoření/editace aktivity, propojení s brigádou
+   ============================================ */
+function EventForm({ mode, event, initialDate, defaultRate, onClose, onSave, onDelete }) {
+    const [title, setTitle] = useState(event?.title || '');
+    const [description, setDescription] = useState(event?.description || '');
+    const [date, setDate] = useState(event?.date?.slice(0, 10) || initialDate || todayStr());
+    const [time, setTime] = useState(event?.time || '12:00');
+    const [isShift, setIsShift] = useState(Boolean(event?.shiftId));
+    const [endTime, setEndTime] = useState(event?.endTime || '17:00');
+    const [wage, setWage] = useState(event?.wage ?? defaultRate ?? 150);
+    const [error, setError] = useState('');
+    const [confirmDelete, setConfirmDelete] = useState(false);
+
+    const handleSave = () => {
+        setError('');
+        if (!title.trim()) return setError('Vyplň název aktivity.');
+
+        const eventData = {
+            title: title.trim(),
+            description: description.trim(),
+            date: new Date(date + 'T00:00').toISOString(),
+            time
+        };
+
+        let linkedShift = null;
+        if (isShift) {
+            const w = parseFloat(wage);
+            if (isNaN(w) || w < 0) return setError('Sazba musí být nezáporné číslo.');
+            const startIso = combineDateAndTime(date, time);
+            const endIso = combineDateAndTime(date, endTime);
+            if (new Date(endIso) <= new Date(startIso)) return setError('Konec musí být později než začátek.');
+            linkedShift = {
+                date: new Date(date).toISOString(),
+                startTime: startIso,
+                endTime: endIso,
+                hourlyWage: w
+            };
+            // uložíme i do event payloadu pro pozdější editaci
+            eventData.endTime = endTime;
+            eventData.wage = w;
+        }
+
+        onSave(eventData, linkedShift);
+    };
+
+    return (
+        <div className="overlay" onClick={onClose}>
+            <div className="sheet" onClick={e => e.stopPropagation()}>
+                <div className="sheet-header">
+                    <button className="sheet-btn" onClick={onClose}>Zrušit</button>
+                    <div className="sheet-title">{mode === 'edit' ? 'Upravit aktivitu' : 'Nová aktivita'}</div>
+                    <button className="sheet-btn primary" onClick={handleSave}>Uložit</button>
+                </div>
+                <div className="sheet-body">
+                    {error && <div className="error-box">{error}</div>}
+
+                    <div className="form-section">
+                        <div className="form-group">
+                            <input className="form-input text" style={{padding: '14px 16px', width: '100%'}}
+                                   type="text" placeholder="Název aktivity (např. Trénink)"
+                                   value={title} onChange={e => setTitle(e.target.value)} autoFocus />
+                        </div>
+                    </div>
+
+                    <div className="form-section">
+                        <div className="form-section-title">Kdy</div>
+                        <div className="form-group">
+                            <div className="form-row">
+                                <div className="form-label">Datum</div>
+                                <input className="form-input" type="date" value={date}
+                                       onChange={e => setDate(e.target.value)} />
+                            </div>
+                            <div className="form-row">
+                                <div className="form-label">Čas</div>
+                                <input className="form-input" type="time" value={time}
+                                       onChange={e => setTime(e.target.value)} />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="form-section">
+                        <div className="form-section-title">Poznámka</div>
+                        <div className="form-group">
+                            <textarea className="form-textarea" placeholder="Detaily, místo, kontakt…"
+                                      style={{minHeight: 90}}
+                                      value={description} onChange={e => setDescription(e.target.value)} />
+                        </div>
+                    </div>
+
+                    <div className="form-section">
+                        <button type="button"
+                                className={'shift-toggle' + (isShift ? ' active' : '')}
+                                onClick={() => setIsShift(v => !v)}>
+                            <span className="shift-toggle-icon"><Icon name="briefcase" size={18} /></span>
+                            <span className="shift-toggle-label">
+                                <span className="shift-toggle-title">Týká se brigády</span>
+                                <span className="shift-toggle-sub">
+                                    {isShift ? 'Vytvoří se i plánovaná směna' : 'Vytvoří jen aktivitu v kalendáři'}
+                                </span>
+                            </span>
+                            <span className="shift-toggle-switch">
+                                <span className="shift-toggle-knob" />
+                            </span>
+                        </button>
+                    </div>
+
+                    {isShift && (
+                        <div className="form-section">
+                            <div className="form-section-title">Směna</div>
+                            <div className="form-group">
+                                <div className="form-row">
+                                    <div className="form-label">Konec</div>
+                                    <input className="form-input" type="time" value={endTime}
+                                           onChange={e => setEndTime(e.target.value)} />
+                                </div>
+                                <div className="form-row">
+                                    <div className="form-label">Sazba (Kč/h)</div>
+                                    <input className="form-input" type="number" step="10" min="0"
+                                           value={wage} onChange={e => setWage(e.target.value)} />
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {mode === 'edit' && (
+                        <button className="delete-btn" onClick={() => setConfirmDelete(true)}>Smazat aktivitu</button>
+                    )}
+                </div>
+            </div>
+            {confirmDelete && (
+                <div className="overlay center" onClick={e => { e.stopPropagation(); setConfirmDelete(false); }}>
+                    <div className="alert" onClick={e => e.stopPropagation()}>
+                        <h3>Smazat aktivitu?</h3>
+                        <p>{event?.shiftId ? 'Smaže se i propojená plánovaná směna.' : 'Tuto akci nelze vzít zpět.'}</p>
                         <div className="alert-buttons">
                             <button onClick={() => setConfirmDelete(false)}>Zrušit</button>
                             <button className="destructive" onClick={onDelete}>Smazat</button>
