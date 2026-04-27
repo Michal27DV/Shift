@@ -503,7 +503,7 @@ body::after {
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
-    padding: 8px 20px calc(150px + env(safe-area-inset-bottom));
+    padding: 8px 20px calc(130px + env(safe-area-inset-bottom));
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
     animation: fadeIn 0.35s ease-out;
@@ -778,7 +778,7 @@ body::after {
 .tab-bar {
     position: absolute;
     /* iOS FIX: tab bar zvednutý nad safe-area (home indicator) */
-    bottom: calc(env(safe-area-inset-bottom, 0px) + 40px);
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 20px);
     left: 14px;
     right: 14px;
     display: flex;
@@ -836,7 +836,7 @@ body::after {
    ============================================ */
 .fab {
     position: absolute;
-    bottom: calc(env(safe-area-inset-bottom, 0px) + 130px);
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 110px);
     right: 20px;
     width: 58px; height: 58px;
     border-radius: 50%;
@@ -2563,13 +2563,68 @@ function AppShell({ user }) {
             setState(s => ({ ...s, notes: s.notes.filter(n => n.id !== id) }));
         },
         addShift: (shift) => {
-            setState(s => ({ ...s, shifts: [...s.shifts, { ...shift, id: uid(), createdAt: new Date().toISOString() }] }));
+            setState(s => {
+                const shiftId = uid();
+                const now = new Date().toISOString();
+                const newShift = { ...shift, id: shiftId, createdAt: now };
+                let newEvents = s.events;
+
+                // Pokud přidáváme upcoming směnu (a ještě nemá eventId — nešla přes Calendar
+                // EventForm), automaticky vytvoříme propojenou aktivitu v kalendáři.
+                if (shift.status === 'upcoming' && !shift.eventId) {
+                    const eventId = uid();
+                    newShift.eventId = eventId;
+                    newEvents = [...s.events, {
+                        id: eventId,
+                        title: 'Brigáda',
+                        description: '',
+                        date: isoToLocalDay(shift.startTime || shift.date),
+                        time: getTimeStr(shift.startTime),
+                        endTime: getTimeStr(shift.endTime),
+                        wage: shift.hourlyWage,
+                        shiftId,
+                        createdAt: now
+                    }];
+                }
+                return { ...s, shifts: [...s.shifts, newShift], events: newEvents };
+            });
         },
         updateShift: (id, updates) => {
-            setState(s => ({ ...s, shifts: s.shifts.map(sh => sh.id === id ? { ...sh, ...updates } : sh) }));
+            setState(s => {
+                const oldShift = s.shifts.find(sh => sh.id === id);
+                if (!oldShift) return s;
+                const newShift = { ...oldShift, ...updates };
+                let newEvents = s.events;
+
+                // Pokud má směna propojený event v kalendáři, propsat změny
+                // času / data / sazby. Title a description necháme být.
+                if (newShift.eventId) {
+                    newEvents = s.events.map(e => e.id === newShift.eventId
+                        ? { ...e,
+                            date: isoToLocalDay(newShift.startTime || newShift.date),
+                            time: getTimeStr(newShift.startTime),
+                            endTime: getTimeStr(newShift.endTime),
+                            wage: newShift.hourlyWage }
+                        : e);
+                }
+                return {
+                    ...s,
+                    shifts: s.shifts.map(sh => sh.id === id ? newShift : sh),
+                    events: newEvents
+                };
+            });
         },
         deleteShift: (id) => {
-            setState(s => ({ ...s, shifts: s.shifts.filter(sh => sh.id !== id) }));
+            setState(s => {
+                const sh = s.shifts.find(x => x.id === id);
+                // Smaž i propojenou aktivitu v kalendáři (pokud existuje)
+                const newEvents = sh?.eventId ? s.events.filter(e => e.id !== sh.eventId) : s.events;
+                return {
+                    ...s,
+                    shifts: s.shifts.filter(x => x.id !== id),
+                    events: newEvents
+                };
+            });
         },
         // EVENTS — kalendářové aktivity, mohou být propojené s plánovanou směnou
         addEvent: (event, linkedShift) => {
