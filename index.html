@@ -1640,8 +1640,34 @@ input[type="date"], input[type="time"], input[type="number"] {
     gap: 4px;
     position: relative;
     transition: transform 0.12s, background 0.2s;
+    overflow: hidden;
 }
 .big-picker:active { transform: scale(0.98); background: var(--card-bg-active); }
+
+/* iOS FIX: transparentní input overlay přes celý parent — tap kdekoli
+   v boxu otevře native picker. Funguje spolehlivě i pro <input type="time">
+   (showPicker API je v iOS Safari pro time nestabilní). */
+.picker-overlay {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    opacity: 0 !important;
+    cursor: pointer !important;
+    border: none !important;
+    background: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    color: transparent !important;
+    -webkit-text-fill-color: transparent !important;
+    font: inherit;
+    -webkit-appearance: none;
+    appearance: none;
+    z-index: 2;
+    color-scheme: dark;
+}
+.picker-overlay::-webkit-calendar-picker-indicator { opacity: 0; cursor: pointer; }
+.picker-overlay::-webkit-date-and-time-value { opacity: 0; }
 .big-picker-label {
     font-size: 12px;
     font-weight: 600;
@@ -1699,6 +1725,8 @@ input[type="date"], input[type="time"], input[type="number"] {
     text-align: center;
     position: relative;
     transition: transform 0.12s;
+    overflow: hidden;
+    border-radius: 12px;
 }
 .time-pill:active { transform: scale(0.96); }
 .time-pill-label {
@@ -2749,6 +2777,19 @@ function isoDay(date) {
     return `${y}-${m}-${d}`;
 }
 
+// Převede uložené date pole na lokální YYYY-MM-DD.
+// Zvládne staré ISO ('2026-04-26T22:00Z') i nové plain ('2026-04-27').
+// Tím se vyhneme timezone offsetu — slice(0,10) na ISO vrací UTC den, ne lokální.
+function isoToLocalDay(value) {
+    if (!value) return '';
+    if (typeof value === 'string' && !value.includes('T') && /^\d{4}-\d{2}-\d{2}/.test(value)) {
+        return value.slice(0, 10);
+    }
+    const d = new Date(value);
+    if (isNaN(d.getTime())) return '';
+    return isoDay(d);
+}
+
 function buildMonthGrid(year, month) {
     // month = 0-11. Vrací 6x7 mřížku Date objektů, počínaje pondělím
     const firstOfMonth = new Date(year, month, 1);
@@ -2776,11 +2817,11 @@ function CalendarScreen({ events, defaultRate, actions }) {
     const cells = useMemo(() => buildMonthGrid(cursor.year, cursor.month), [cursor]);
     const todayIso = isoDay(new Date());
 
-    // Mapa: ISO den -> seznam eventů
+    // Mapa: lokální YYYY-MM-DD -> seznam eventů
     const eventsByDay = useMemo(() => {
         const map = {};
         events.forEach(e => {
-            const k = (e.date || '').slice(0, 10);
+            const k = isoToLocalDay(e.date);
             if (!k) return;
             (map[k] = map[k] || []).push(e);
         });
@@ -2986,29 +3027,13 @@ function DualRangeSlider({ startSlot, endSlot, onStart, onEnd }) {
 function EventForm({ mode, event, initialDate, defaultRate, onClose, onSave, onDelete }) {
     const [title, setTitle] = useState(event?.title || '');
     const [description, setDescription] = useState(event?.description || '');
-    const [date, setDate] = useState(event?.date?.slice(0, 10) || initialDate || todayStr());
+    const [date, setDate] = useState(isoToLocalDay(event?.date) || initialDate || todayStr());
     const [time, setTime] = useState(event?.time || '09:00');
     const [isShift, setIsShift] = useState(Boolean(event?.shiftId));
     const [endTime, setEndTime] = useState(event?.endTime || addMinutes(event?.time || '09:00', 240));
     const [wage, setWage] = useState(event?.wage ?? defaultRate ?? 150);
     const [error, setError] = useState('');
     const [confirmDelete, setConfirmDelete] = useState(false);
-
-    // Skryté nativní pickery (otevřené přes ref kliknutím na vlastní velký box)
-    const dateRef = useRef(null);
-    const timeRef = useRef(null);
-    const endRef = useRef(null);
-
-    const openPicker = (ref) => {
-        if (!ref.current) return;
-        // Moderní prohlížeče (iOS Safari 16+, Chrome) podporují showPicker()
-        if (typeof ref.current.showPicker === 'function') {
-            try { ref.current.showPicker(); return; } catch {}
-        }
-        // Fallback: focus + click
-        ref.current.focus();
-        ref.current.click();
-    };
 
     const duration = diffMinutes(time, endTime);
 
@@ -3027,10 +3052,12 @@ function EventForm({ mode, event, initialDate, defaultRate, onClose, onSave, onD
         setError('');
         if (!title.trim()) return setError('Vyplň název aktivity.');
 
+        // Datum ukládáme jako plain YYYY-MM-DD (ne ISO!) abychom se vyhnuli
+        // timezone offsetu — uloženo přesně jaký den uživatel zadal.
         const eventData = {
             title: title.trim(),
             description: description.trim(),
-            date: new Date(date + 'T00:00').toISOString(),
+            date,
             time
         };
 
@@ -3042,7 +3069,7 @@ function EventForm({ mode, event, initialDate, defaultRate, onClose, onSave, onD
             const endIso = combineDateAndTime(date, endTime);
             if (new Date(endIso) <= new Date(startIso)) return setError('Konec musí být později než začátek.');
             linkedShift = {
-                date: new Date(date).toISOString(),
+                date,
                 startTime: startIso,
                 endTime: endIso,
                 hourlyWage: w
@@ -3070,47 +3097,48 @@ function EventForm({ mode, event, initialDate, defaultRate, onClose, onSave, onD
                            placeholder="Název aktivity"
                            value={title} onChange={e => setTitle(e.target.value)} />
 
-                    {/* DATE — velký touch box */}
-                    <button type="button" className="big-picker" onClick={() => openPicker(dateRef)}>
+                    {/* DATE — velký touch box. Input je transparentní overlay přes celý box,
+                        klep otevře native picker přímo (iOS bug fix: showPicker() pro time není spolehlivé) */}
+                    <div className="big-picker">
                         <span className="big-picker-label">Datum</span>
                         <span className="big-picker-value">{fmtDateLong(date)}</span>
-                        <input ref={dateRef} type="date" value={date}
+                        <input type="date" value={date}
                                onChange={e => setDate(e.target.value)}
-                               style={{position: 'absolute', opacity: 0, pointerEvents: 'none', width: 0, height: 0}} />
-                    </button>
+                               className="picker-overlay" />
+                    </div>
 
-                    {/* TIME — bez směny: jeden čas, klepnutím native picker */}
+                    {/* TIME — bez směny: jeden čas */}
                     {!isShift && (
-                        <button type="button" className="big-picker time-single" onClick={() => openPicker(timeRef)}>
+                        <div className="big-picker time-single">
                             <span className="big-picker-label">Čas</span>
                             <span className="big-picker-value time-big">{time}</span>
-                            <input ref={timeRef} type="time" value={time}
+                            <input type="time" value={time}
                                    onChange={e => setTime(e.target.value)}
-                                   style={{position: 'absolute', opacity: 0, pointerEvents: 'none', width: 0, height: 0}} />
-                        </button>
+                                   className="picker-overlay" />
+                        </div>
                     )}
 
                     {/* TIME — se směnou: vizuální od/do + dual range slider */}
                     {isShift && (
                         <div className="time-range-card">
                             <div className="time-range">
-                                <button type="button" className="time-pill" onClick={() => openPicker(timeRef)}>
+                                <div className="time-pill">
                                     <span className="time-pill-label">Začátek</span>
                                     <span className="time-pill-value">{time}</span>
-                                    <input ref={timeRef} type="time" value={time}
+                                    <input type="time" value={time}
                                            onChange={e => setStart(e.target.value)}
-                                           style={{position: 'absolute', opacity: 0, pointerEvents: 'none', width: 0, height: 0}} />
-                                </button>
+                                           className="picker-overlay" />
+                                </div>
                                 <div className="time-range-arrow">
                                     <span className="time-range-duration">{fmtDuration(duration)}</span>
                                 </div>
-                                <button type="button" className="time-pill" onClick={() => openPicker(endRef)}>
+                                <div className="time-pill">
                                     <span className="time-pill-label">Konec</span>
                                     <span className="time-pill-value">{endTime}</span>
-                                    <input ref={endRef} type="time" value={endTime}
+                                    <input type="time" value={endTime}
                                            onChange={e => setEndTime(e.target.value)}
-                                           style={{position: 'absolute', opacity: 0, pointerEvents: 'none', width: 0, height: 0}} />
-                                </button>
+                                           className="picker-overlay" />
+                                </div>
                             </div>
 
                             <DualRangeSlider
