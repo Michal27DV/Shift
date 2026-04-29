@@ -64,6 +64,9 @@
 
     /* iOS FIX: výška klávesnice — nastavujeme z JS přes visualViewport */
     --kb-offset: 0px;
+
+    /* Gear icon SVG (Material settings) — sdíleno pro slider thumby */
+    --gear-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M19.43 12.98c.04-.32.07-.64.07-.98 0-.34-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98 0 .33.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z'/></svg>");
 }
 
 /* Light-ish mode is still dark but less deep */
@@ -382,12 +385,18 @@ html[data-theme="disco"] {
     box-shadow: 0 0 16px rgba(217, 70, 239, 0.5);
 }
 [data-theme="disco"] .drs-input.drs-start::-webkit-slider-thumb {
-    border-color: #67e8f9;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.5), 0 0 12px rgba(103, 232, 249, 0.5);
+    background-color: #67e8f9;
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.6)) drop-shadow(0 0 10px rgba(103, 232, 249, 0.7));
 }
 [data-theme="disco"] .drs-input.drs-end::-webkit-slider-thumb {
-    border-color: #f472b6;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.5), 0 0 12px rgba(244, 114, 182, 0.5);
+    background-color: #f472b6;
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.6)) drop-shadow(0 0 10px rgba(244, 114, 182, 0.7));
+}
+[data-theme="disco"] .drs-input.drs-start::-moz-range-thumb {
+    background-color: #67e8f9;
+}
+[data-theme="disco"] .drs-input.drs-end::-moz-range-thumb {
+    background-color: #f472b6;
 }
 
 /* Theme-option active v disco — duhový */
@@ -574,48 +583,6 @@ body::after {
     color: var(--text);
     font-weight: 600;
     box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);
-}
-
-/* ============================================
-   NOTE CARDS
-   ============================================ */
-.note-card {
-    padding: 18px 20px;
-    margin-bottom: 12px;
-    cursor: pointer;
-    transition: transform 0.15s ease, background 0.2s ease, border-color 0.2s ease;
-    animation: scaleIn 0.3s ease-out;
-}
-.note-card:active {
-    transform: scale(0.97);
-    background: var(--card-bg-active);
-    border-color: rgba(255, 255, 255, 0.14);
-}
-.note-card > * { position: relative; z-index: 1; }
-
-.note-title {
-    font-size: 17px;
-    font-weight: 600;
-    margin-bottom: 6px;
-    letter-spacing: -0.01em;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-.note-preview {
-    font-size: 14px;
-    color: var(--text-secondary);
-    line-height: 1.4;
-    margin-bottom: 8px;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-.note-meta {
-    font-size: 12px;
-    color: var(--text-tertiary);
-    font-weight: 500;
 }
 
 /* ============================================
@@ -859,12 +826,6 @@ body::after {
 }
 .fab:active { transform: scale(0.9); }
 .fab svg { width: 26px; height: 26px; position: relative; z-index: 1; }
-
-/* Druhý FAB (kalendář) — stejný design, vlevo od hlavního */
-.fab-secondary {
-    right: calc(20px + 58px + 12px); /* hlavní FAB + gap */
-}
-.fab-secondary svg { width: 24px; height: 24px; }
 
 /* ============================================
    SHEETS / MODALS
@@ -1809,51 +1770,66 @@ input[type="date"], input[type="time"], input[type="number"] {
     padding: 0;
     outline: none;
 }
+/* Track inputu má jen 6px (matchuje vizuální .drs-track) — díky tomu
+   se thumb správně zacentruje vertikálně na linku. */
 .drs-input::-webkit-slider-runnable-track {
     background: transparent;
     border: none;
-    height: 40px;
+    height: 6px;
 }
 .drs-input::-moz-range-track {
     background: transparent;
     border: none;
+    height: 6px;
 }
+
+/* THUMB = ozubené kolečko (gear).
+   Tvar je vykreslený přes mask-image (SVG ozubené kolo) — díky tomu
+   můžeme měnit barvu jen přes background-color (i v disco režimu). */
 .drs-input::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
     pointer-events: auto;
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    background: #fff;
-    border: 3px solid var(--accent);
+    width: 30px;
+    height: 30px;
+    /* (track 6px - thumb 30px) / 2 = -12px → vertikální centrování thumbu na lince */
+    margin-top: -12px;
+    background-color: var(--accent);
+    -webkit-mask: var(--gear-mask) center/contain no-repeat;
+    mask: var(--gear-mask) center/contain no-repeat;
+    border: none;
+    border-radius: 0;
     cursor: grab;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), 0 0 0 4px rgba(122,166,255,0.15);
-    margin-top: 0; /* Chrome already centers via track height */
-    transition: transform 0.12s, box-shadow 0.2s;
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.6));
+    transition: transform 0.2s ease, filter 0.2s;
     position: relative;
     z-index: 2;
 }
+.drs-input::-webkit-slider-thumb:hover {
+    transform: rotate(45deg);
+}
 .drs-input::-webkit-slider-thumb:active {
-    transform: scale(1.15);
+    transform: rotate(90deg) scale(1.12);
     cursor: grabbing;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6), 0 0 0 8px rgba(122,166,255,0.25);
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.7));
 }
 .drs-input::-moz-range-thumb {
     pointer-events: auto;
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    background: #fff;
-    border: 3px solid var(--accent);
+    width: 30px;
+    height: 30px;
+    background-color: var(--accent);
+    -webkit-mask: var(--gear-mask) center/contain no-repeat;
+    mask: var(--gear-mask) center/contain no-repeat;
+    border: none;
+    border-radius: 0;
     cursor: grab;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.6));
 }
 .drs-end::-webkit-slider-thumb {
-    border-color: var(--accent-2);
+    background-color: var(--accent-2);
 }
 .drs-end::-moz-range-thumb {
-    border-color: var(--accent-2);
+    background-color: var(--accent-2);
 }
 
 .drs-axis {
@@ -2142,10 +2118,10 @@ input[type="date"], input[type="time"], input[type="number"] {
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 
-    <!-- Firebase compat SDK — globální `firebase` namespace, kompatibilní s naším CDN/babel setupem -->
+    <!-- Firebase compat SDK — auth se loaduje hned (potřeba pro auth gate),
+         Firestore se loaduje až po přihlášení (úspora ~360 KB při startu na login obrazovce) -->
     <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
 
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
@@ -2166,10 +2142,28 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
-const db = firebase.firestore();
 
-// Lokální persistence Firestore — funguje offline, syncne při návratu sítě
-db.enablePersistence({ synchronizeTabs: true }).catch(() => {/* ignore: multiple tabs / unsupported */});
+// Lazy Firestore — script se loaduje až po přihlášení (úspora ~360 KB při startu).
+// getDb() se použije ve všech storage helperech místo přímého `db`.
+let _db = null;
+let _dbPromise = null;
+function getDb() {
+    if (_db) return Promise.resolve(_db);
+    if (_dbPromise) return _dbPromise;
+    _dbPromise = new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = 'https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js';
+        s.onload = () => {
+            _db = firebase.firestore();
+            // Offline persistence — funguje bez netu, syncne při návratu
+            _db.enablePersistence({ synchronizeTabs: true }).catch(() => {});
+            resolve(_db);
+        };
+        s.onerror = () => reject(new Error('Firestore SDK se nepodařilo načíst'));
+        document.head.appendChild(s);
+    });
+    return _dbPromise;
+}
 
 /* ============================================
    STORAGE — localStorage jako rychlý cache,
@@ -2179,12 +2173,11 @@ const STORAGE_KEY = 'shift-app-v3';
 const cacheKey = (uid) => `${STORAGE_KEY}:${uid}`;
 
 function initialState() {
-    return { notes: [], shifts: [], events: [], settings: { hourlyRate: 150, theme: 'dark' } };
+    return { shifts: [], events: [], settings: { hourlyRate: 150, theme: 'dark' } };
 }
 
 function normalize(parsed) {
     return {
-        notes: parsed?.notes || [],
         shifts: parsed?.shifts || [],
         events: parsed?.events || [],
         settings: { hourlyRate: 150, theme: 'dark', ...(parsed?.settings || {}) }
@@ -2203,22 +2196,25 @@ function saveCachedState(uid, state) {
     try { localStorage.setItem(cacheKey(uid), JSON.stringify(state)); } catch {}
 }
 
-function userDocRef(uid) {
+async function userDocRef(uid) {
+    const db = await getDb();
     return db.collection('users').doc(uid).collection('state').doc('main');
 }
 
 async function loadFirestoreState(uid) {
-    const snap = await userDocRef(uid).get();
+    const ref = await userDocRef(uid);
+    const snap = await ref.get();
     if (!snap.exists) {
         const init = initialState();
-        await userDocRef(uid).set(init);
+        await ref.set(init);
         return init;
     }
     return normalize(snap.data());
 }
 
 async function saveFirestoreState(uid, state) {
-    await userDocRef(uid).set(state, { merge: false });
+    const ref = await userDocRef(uid);
+    await ref.set(state, { merge: false });
 }
 
 /* ============================================
@@ -2273,7 +2269,6 @@ const hoursBetween = (startIso, endIso) => {
    ============================================ */
 const Icon = ({ name, size = 24 }) => {
     const paths = {
-        notes: <><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2" strokeWidth="1.8"/></>,
         shifts: <><rect x="3" y="5" width="18" height="16" rx="2" strokeWidth="1.8"/><path d="M3 9h18M8 3v4M16 3v4" strokeWidth="1.8" strokeLinecap="round"/></>,
         wage: <><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" strokeWidth="1.8"/></>,
         settings: <><circle cx="12" cy="12" r="3" strokeWidth="1.8"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" strokeWidth="1.8"/></>,
@@ -2282,7 +2277,6 @@ const Icon = ({ name, size = 24 }) => {
         clock: <><circle cx="12" cy="12" r="10" strokeWidth="1.8"/><path d="M12 6v6l4 2" strokeWidth="1.8" strokeLinecap="round"/></>,
         moon: <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" strokeWidth="1.8"/>,
         alert: <><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0zM12 9v4M12 17h.01" strokeWidth="1.8" strokeLinecap="round"/></>,
-        note: <><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" strokeWidth="1.8"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" strokeWidth="1.8"/></>,
         check: <><circle cx="12" cy="12" r="10" strokeWidth="1.8"/><path d="M9 12l2 2 4-4" strokeWidth="1.8" strokeLinecap="round"/></>,
         calendar: <><rect x="3" y="4" width="18" height="18" rx="2" strokeWidth="1.8"/><path d="M16 2v4M8 2v4M3 10h18" strokeWidth="1.8"/></>,
         info: <><circle cx="12" cy="12" r="10" strokeWidth="1.8"/><path d="M12 16v-4M12 8h.01" strokeWidth="1.8" strokeLinecap="round"/></>,
@@ -2510,8 +2504,6 @@ function App() {
     return <AppShell user={user} />;
 }
 
-// Migrace: pokud má uživatel uložený starý tab 'notes', přemapujeme na 'calendar'
-const migrateTab = (t) => t === 'notes' ? 'calendar' : t;
 
 function SplashScreen() {
     return (
@@ -2551,17 +2543,9 @@ function AppShell({ user }) {
         return () => clearInterval(id);
     }, []);
 
-    const actions = {
-        addNote: (title, content) => {
-            const now = new Date().toISOString();
-            setState(s => ({ ...s, notes: [...s.notes, { id: uid(), title, content, createdAt: now, updatedAt: now }] }));
-        },
-        updateNote: (id, title, content) => {
-            setState(s => ({ ...s, notes: s.notes.map(n => n.id === id ? { ...n, title, content, updatedAt: new Date().toISOString() } : n) }));
-        },
-        deleteNote: (id) => {
-            setState(s => ({ ...s, notes: s.notes.filter(n => n.id !== id) }));
-        },
+    // useMemo s [] = stabilní reference akcí napříč rendery → menší re-render pressure
+    // setState je stabilní, takže nezávisí na jiných hodnotách
+    const actions = useMemo(() => ({
         addShift: (shift) => {
             setState(s => {
                 const shiftId = uid();
@@ -2677,7 +2661,7 @@ function AppShell({ user }) {
         setSetting: (key, value) => {
             setState(s => ({ ...s, settings: { ...s.settings, [key]: value } }));
         }
-    };
+    }), []);
 
     return (
         <>
@@ -2715,110 +2699,6 @@ function TabBar({ current, onChange }) {
 }
 
 /* ============================================
-   NOTES SCREEN
-   ============================================ */
-function NotesScreen({ notes, events, defaultRate, actions }) {
-    const [editor, setEditor] = useState(null);
-    const [calendarOpen, setCalendarOpen] = useState(false);
-    const sorted = [...notes].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-
-    return (
-        <>
-            <header className="nav-bar">
-                <div className="nav-title">Poznámky</div>
-            </header>
-            <main className="scroll">
-                {sorted.length === 0 ? (
-                    <div className="empty">
-                        <div className="empty-icon"><Icon name="note" size={36} /></div>
-                        <h2>Žádné poznámky</h2>
-                        <p>Ťukni na + a něco si zapiš.</p>
-                    </div>
-                ) : (
-                    sorted.map(note => (
-                        <div key={note.id} className="glass note-card"
-                             onClick={() => setEditor({ mode: 'edit', note })}>
-                            <div className="note-title">{note.title || 'Bez názvu'}</div>
-                            {note.content && <div className="note-preview">{note.content}</div>}
-                            <div className="note-meta">{fmtRelative(note.updatedAt)}</div>
-                        </div>
-                    ))
-                )}
-            </main>
-            <button className="fab fab-secondary" onClick={() => setCalendarOpen(true)} aria-label="Kalendář">
-                <Icon name="calendar" size={24} />
-            </button>
-            <button className="fab" onClick={() => setEditor({ mode: 'create' })} aria-label="Nová poznámka">
-                <Icon name="plus" size={26} />
-            </button>
-            {editor && (
-                <NoteEditor mode={editor.mode} note={editor.note}
-                    onSave={(title, content) => {
-                        if (editor.mode === 'create') actions.addNote(title, content);
-                        else actions.updateNote(editor.note.id, title, content);
-                        setEditor(null);
-                    }}
-                    onDelete={() => { actions.deleteNote(editor.note.id); setEditor(null); }}
-                    onClose={() => setEditor(null)} />
-            )}
-            {calendarOpen && (
-                <CalendarScreen events={events} defaultRate={defaultRate} actions={actions}
-                                onClose={() => setCalendarOpen(false)} />
-            )}
-        </>
-    );
-}
-
-function NoteEditor({ mode, note, onSave, onDelete, onClose }) {
-    const [title, setTitle] = useState(note?.title || '');
-    const [content, setContent] = useState(note?.content || '');
-    const [confirmDelete, setConfirmDelete] = useState(false);
-    const canSave = title.trim() || content.trim();
-
-    return (
-        <div className="overlay" onClick={onClose}>
-            <div className="sheet" onClick={e => e.stopPropagation()}>
-                <div className="sheet-header">
-                    <button className="sheet-btn" onClick={onClose}>Zrušit</button>
-                    <div className="sheet-title">{mode === 'edit' ? 'Upravit' : 'Nová poznámka'}</div>
-                    <button className="sheet-btn primary" disabled={!canSave}
-                            onClick={() => canSave && onSave(title, content)}>Uložit</button>
-                </div>
-                <div className="sheet-body">
-                    <div className="form-section">
-                        <div className="form-group">
-                            <input className="form-input text" style={{padding: '14px 16px', width: '100%'}} type="text" placeholder="Název"
-                                   value={title} onChange={e => setTitle(e.target.value)} />
-                        </div>
-                    </div>
-                    <div className="form-section">
-                        <div className="form-group">
-                            <textarea className="form-textarea" placeholder="Napiš poznámku..."
-                                      value={content} onChange={e => setContent(e.target.value)} />
-                        </div>
-                    </div>
-                    {mode === 'edit' && (
-                        <button className="delete-btn" onClick={() => setConfirmDelete(true)}>Smazat poznámku</button>
-                    )}
-                </div>
-            </div>
-            {confirmDelete && (
-                <div className="overlay center" onClick={e => { e.stopPropagation(); setConfirmDelete(false); }}>
-                    <div className="alert" onClick={e => e.stopPropagation()}>
-                        <h3>Smazat poznámku?</h3>
-                        <p>Tuto akci nelze vzít zpět.</p>
-                        <div className="alert-buttons">
-                            <button onClick={() => setConfirmDelete(false)}>Zrušit</button>
-                            <button className="destructive" onClick={onDelete}>Smazat</button>
-                        </div>
-                    </div>
-                </div>
-            )}
-        </div>
-    );
-}
-
-/* ============================================
    CALENDAR SCREEN — měsíční mřížka, výběr dne, přidání aktivity
    ============================================ */
 const DAY_NAMES = ['Po', 'Út', 'St', 'Čt', 'Pá', 'So', 'Ne'];
@@ -2844,6 +2724,25 @@ function isoToLocalDay(value) {
     if (isNaN(d.getTime())) return '';
     return isoDay(d);
 }
+
+// Memoizovaná buňka kalendáře — 42 buněk x re-render při každé změně state by žralo CPU.
+// React.memo přerenderuje jen když se opravdu změní propy (date, isSelected, eventCount...).
+const CalendarCell = React.memo(function CalendarCell({ day, dayNumber, inMonth, isToday, isSelected, eventCount, hasShift, isoKey, onSelect }) {
+    return (
+        <button className={'cal-cell'
+                    + (inMonth ? '' : ' out')
+                    + (isToday ? ' today' : '')
+                    + (isSelected ? ' selected' : '')}
+                onClick={() => onSelect(isoKey)}>
+            <span className="cal-num">{dayNumber}</span>
+            {eventCount > 0 && (
+                <span className={'cal-dots' + (hasShift ? ' has-shift' : '')}>
+                    {Array.from({length: Math.min(3, eventCount)}, (_, j) => <span key={j} className="cal-dot" />)}
+                </span>
+            )}
+        </button>
+    );
+});
 
 function buildMonthGrid(year, month) {
     // month = 0-11. Vrací 6x7 mřížku Date objektů, počínaje pondělím
@@ -2925,25 +2824,18 @@ function CalendarScreen({ events, defaultRate, actions }) {
                     {DAY_NAMES.map(d => <div key={d} className="cal-dayname">{d}</div>)}
                     {cells.map((d, i) => {
                         const iso = isoDay(d);
-                        const inMonth = d.getMonth() === cursor.month;
-                        const isToday = iso === todayIso;
-                        const isSelected = iso === selectedDay;
                         const evs = eventsByDay[iso] || [];
-                        const hasShift = evs.some(e => e.shiftId);
                         return (
-                            <button key={i}
-                                    className={'cal-cell'
-                                        + (inMonth ? '' : ' out')
-                                        + (isToday ? ' today' : '')
-                                        + (isSelected ? ' selected' : '')}
-                                    onClick={() => setSelectedDay(iso)}>
-                                <span className="cal-num">{d.getDate()}</span>
-                                {evs.length > 0 && (
-                                    <span className={'cal-dots' + (hasShift ? ' has-shift' : '')}>
-                                        {evs.slice(0, 3).map((_, j) => <span key={j} className="cal-dot" />)}
-                                    </span>
-                                )}
-                            </button>
+                            <CalendarCell key={i}
+                                day={d}
+                                dayNumber={d.getDate()}
+                                inMonth={d.getMonth() === cursor.month}
+                                isToday={iso === todayIso}
+                                isSelected={iso === selectedDay}
+                                eventCount={evs.length}
+                                hasShift={evs.some(e => e.shiftId)}
+                                isoKey={iso}
+                                onSelect={setSelectedDay} />
                         );
                     })}
                 </div>

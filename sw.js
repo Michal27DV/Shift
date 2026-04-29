@@ -4,7 +4,7 @@
    - Firebase API zcela přeskočeno (auth/firestore musí jít vždy live)
    - Verze cache se zvýší při deploy → SW vyhodí starou cache
 */
-const CACHE = 'shift-v3';
+const CACHE = 'shift-v4';
 const PRECACHE = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './icon.svg'];
 
 self.addEventListener('install', (e) => {
