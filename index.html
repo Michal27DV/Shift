@@ -2522,7 +2522,9 @@ function AppShell({ user }) {
 
     useTheme(state.settings.theme);
 
-    // Auto-rollover: upcoming -> completed when end time passed
+    // Auto-rollover: upcoming -> completed když end time uplynul.
+    // Závislost na `hydrated` zajistí že check proběhne i po dokončení
+    // Firestore hydrace (jinak by remote data přepsala rollover).
     useEffect(() => {
         const check = () => {
             setState(s => {
@@ -2541,7 +2543,7 @@ function AppShell({ user }) {
         check();
         const id = setInterval(check, 60000);
         return () => clearInterval(id);
-    }, []);
+    }, [hydrated]);
 
     // useMemo s [] = stabilní reference akcí napříč rendery → menší re-render pressure
     // setState je stabilní, takže nezávisí na jiných hodnotách
@@ -2551,11 +2553,20 @@ function AppShell({ user }) {
                 const shiftId = uid();
                 const now = new Date().toISOString();
                 const newShift = { ...shift, id: shiftId, createdAt: now };
+
+                // FIX: pokud endTime je v minulosti, force status na 'completed'
+                // (nemůže to být plánovaná směna, protože už skončila).
+                const endPassed = newShift.endTime && new Date(newShift.endTime).getTime() <= Date.now();
+                if (endPassed) {
+                    newShift.status = 'completed';
+                    newShift.needsReview = false;
+                }
+
                 let newEvents = s.events;
 
                 // Pokud přidáváme upcoming směnu (a ještě nemá eventId — nešla přes Calendar
                 // EventForm), automaticky vytvoříme propojenou aktivitu v kalendáři.
-                if (shift.status === 'upcoming' && !shift.eventId) {
+                if (newShift.status === 'upcoming' && !shift.eventId) {
                     const eventId = uid();
                     newShift.eventId = eventId;
                     newEvents = [...s.events, {
@@ -2578,8 +2589,18 @@ function AppShell({ user }) {
                 const oldShift = s.shifts.find(sh => sh.id === id);
                 if (!oldShift) return s;
                 const newShift = { ...oldShift, ...updates };
-                let newEvents = s.events;
 
+                // FIX: pokud endTime už uplynul, force status na 'completed' + needsReview: false.
+                // Řeší race condition když edit form má starý snapshot (status='upcoming')
+                // ale mezitím interval překlopil shift na completed, případně user uloží
+                // shift jehož čas je v minulosti (uložil by jako upcoming = chyba).
+                const endPassed = newShift.endTime && new Date(newShift.endTime).getTime() <= Date.now();
+                if (endPassed) {
+                    newShift.status = 'completed';
+                    newShift.needsReview = false;
+                }
+
+                let newEvents = s.events;
                 // Pokud má směna propojený event v kalendáři, propsat změny
                 // času / data / sazby. Title a description necháme být.
                 if (newShift.eventId) {
