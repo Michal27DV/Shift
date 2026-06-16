@@ -2115,15 +2115,15 @@ input[type="date"], input[type="time"], input[type="number"] {
     })();
     </script>
 
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
 
     <!-- Firebase compat SDK — auth se loaduje hned (potřeba pro auth gate),
          Firestore se loaduje až po přihlášení (úspora ~360 KB při startu na login obrazovce) -->
     <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
 
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone@7.25.6/babel.min.js"></script>
 
     <script type="text/babel" data-presets="react">
 const { useState, useEffect, useMemo, useRef } = React;
